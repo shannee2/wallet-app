@@ -14,7 +14,7 @@ public class UserTest {
     public void TestUserRegister(){
         User user = new User();
         String username = "johndoe";
-        String password = "abcd";
+        String password = "Abc@123";
         user.register(username, password);
         assertTrue(user.isRegistered());
     }
@@ -23,5 +23,11 @@ public class UserTest {
     public void TestUserNotRegisteredInitially(){
         User user = new User();
         assertFalse(user.isRegistered());
+    }
+
+    @Test
+    public void TestDepositMoneyIntoUserWallet(){
+        User user = new User();
+        assertDoesNotThrow(()->user.depositMoneyToWallet(100.45));
     }
 }
