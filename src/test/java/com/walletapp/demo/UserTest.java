@@ -6,28 +6,17 @@ import static org.junit.jupiter.api.Assertions.*;
 public class UserTest {
     @Test
     public void TestUserCreation(){
-        User user = new User();
+        String username = "johndoe";
+        String password = "Abc@123";
+        User user = new User(username, password);
         assertNotNull(user);
     }
 
     @Test
-    public void TestUserRegister(){
-        User user = new User();
+    public void TestDepositMoneyIntoUserWallet(){
         String username = "johndoe";
         String password = "Abc@123";
-        user.register(username, password);
-        assertTrue(user.isRegistered());
-    }
-
-    @Test
-    public void TestUserNotRegisteredInitially(){
-        User user = new User();
-        assertFalse(user.isRegistered());
-    }
-
-    @Test
-    public void TestDepositMoneyIntoUserWallet(){
-        User user = new User();
+        User user = new User(username, password);
         assertDoesNotThrow(()->user.depositMoneyToWallet(100.45));
     }
 }

@@ -5,17 +5,10 @@ public class User {
     private String password;
     private final Wallet wallet;
 
-    public User() {
-        this.wallet = new Wallet();
-    }
-
-    public void register(String username, String password) {
+    public User(String username, String password) {
         this.username = username;
         this.password = password;
-    }
-
-    public boolean isRegistered(){
-        return username!=null && password!=null;
+        this.wallet = new Wallet();
     }
 
     public void depositMoneyToWallet(double amount) {
