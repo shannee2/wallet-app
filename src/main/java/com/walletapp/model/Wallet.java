@@ -68,10 +68,6 @@ public class Wallet {
         this.balance = new Value(newAmount , this.balance.getCurrency());
     }
 
-    public void convertCurrency(Currency newCurrency) {
-//        this.balance = this.balance.convertTo(newCurrency);
-    }
-
     public Value getBalance() {
         return this.balance;
     }
