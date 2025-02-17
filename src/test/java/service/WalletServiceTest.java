@@ -11,7 +11,7 @@ import com.walletapp.model.currency.Value;
 import com.walletapp.repository.CurrencyRepository;
 import com.walletapp.repository.UserRepository;
 import com.walletapp.repository.WalletRepository;
-import com.walletapp.service.UserService;
+import com.walletapp.service.WalletService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class UserServiceTest {
+public class WalletServiceTest {
 
     @Mock
     private UserRepository userRepository;
@@ -41,7 +41,7 @@ public class UserServiceTest {
     private PasswordEncoder passwordEncoder;
 
     @InjectMocks
-    private UserService userService;
+    private WalletService walletService;
 
     private User user;
     private Wallet wallet;
@@ -55,8 +55,6 @@ public class UserServiceTest {
 
     @BeforeEach
     void setUp() {
-//        MockitoAnnotations.openMocks(this);
-
         user = new User("testUser", "password");
         wallet = new Wallet(new Currency(CurrencyType.INR, 1.0), user);
 
@@ -66,37 +64,37 @@ public class UserServiceTest {
         inr = new Currency(CurrencyType.INR, 1);
     }
 
-//    @Test
-//    void testRegisterUser() {
-//        when(currencyRepository.findByType(CurrencyType.INR)).thenReturn(Optional.of(new Currency(CurrencyType.INR, 1.0)));
-//        when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.empty());
-//
-//        userService.registerUser(user);
-//
-//        verify(userRepository).save(any(User.class));
-//        verify(walletRepository).save(any(Wallet.class));
-//    }
-@Test
-void testRegisterUser() {
-    String encodedPassword = "encodedPassword";
-    when(passwordEncoder.encode(user.getPassword())).thenReturn(encodedPassword);
-
-    when(currencyRepository.findByType(CurrencyType.INR)).thenReturn(Optional.of(new Currency(CurrencyType.INR, 1.0)));
-    when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.empty());
-
-    userService.registerUser(user);
-
-    verify(userRepository).save(argThat(savedUser -> savedUser.getPassword().equals(encodedPassword)));
-    verify(walletRepository).save(any(Wallet.class));
-}
 
 
     @Test
-    void testGetUser() throws UserNotFoundException {
+    void testDepositMoneyToWallet() throws UserNotFoundException {
+        TransactionRequest request = new TransactionRequest("testUser", 500.0, "INR", TransactionType.DEPOSIT);
+
         when(userRepository.findByUsername("testUser")).thenReturn(Optional.of(user));
+        when(walletRepository.findByUserId(user.getId())).thenReturn(Optional.of(wallet));
+        when(currencyRepository.findByType(CurrencyType.INR)).thenReturn(Optional.of(new Currency(CurrencyType.INR, 1.0)));
 
-        User foundUser = userService.getUser("testUser");
+        walletService.depositMoneyToWallet(request);
 
-        assertEquals(user.getUsername(), foundUser.getUsername());
+        verify(walletRepository).save(any(Wallet.class));
+        assertEquals(500.0, wallet.getBalance().getAmount());
+    }
+
+    @Test
+    public void testWithdrawMoneyFromWallet() throws UserNotFoundException {
+        TransactionRequest request = new TransactionRequest("testUser", 50.0, "INR", TransactionType.WITHDRAW);
+        User user = new User();
+        user.setId(1L);
+        Wallet wallet = new Wallet(new Currency(CurrencyType.INR, 1.0), user);
+        wallet.depositMoney(new Value(100.0, wallet.getBalance().getCurrency()));
+
+        when(userRepository.findByUsername("testUser")).thenReturn(Optional.of(user));
+        when(walletRepository.findByUserId(1L)).thenReturn(Optional.of(wallet));
+        when(currencyRepository.findByType(CurrencyType.INR)).thenReturn(Optional.of(new Currency(CurrencyType.INR, 1.0)));
+
+        walletService.withdrawMoneyFromWallet(request);
+
+        assertEquals(50.0, wallet.getBalance().getAmount());
+        verify(walletRepository).save(wallet);
     }
 }

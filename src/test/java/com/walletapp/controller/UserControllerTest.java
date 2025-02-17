@@ -2,29 +2,23 @@ package com.walletapp.controller;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.walletapp.dto.TransactionRequest;
+import com.walletapp.dto.transaction.TransactionRequest;
+import com.walletapp.dto.transaction.TransactionType;
 import com.walletapp.model.User;
 import com.walletapp.service.UserService;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-//import org.springframework.boot.test.mock.mockito.MockBean;
-//import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
-//@ExtendWith(SpringExtension.class)
-//@WebMvcTest(UserController.class)
+
 @AutoConfigureMockMvc(addFilters = false)
 @SpringBootTest
 public class UserControllerTest {
@@ -37,24 +31,15 @@ public class UserControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+    private String register = "/users";
 
     @Test
     public void testRegisterUser() throws Exception {
         User user = new User("testUser", "password123");
 
-        mockMvc.perform(post("/users/register")
+        mockMvc.perform(post("/users")
                         .contentType(APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(user)))
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    public void testDepositMoney() throws Exception {
-        TransactionRequest request = new TransactionRequest("testUser", 100.0, "INR");
-
-        mockMvc.perform(put("/users/depositMoney")
-                        .contentType(APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
     }
 

@@ -12,25 +12,19 @@ import com.walletapp.model.currency.Value;
 import com.walletapp.repository.CurrencyRepository;
 import com.walletapp.repository.UserRepository;
 import com.walletapp.repository.WalletRepository;
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 
 @Service
-public class UserService implements UserDetailsService {
+public class WalletService implements UserDetailsService {
 
     private final UserRepository userRepository;
     private final CurrencyRepository currencyRepository;
@@ -40,7 +34,7 @@ public class UserService implements UserDetailsService {
     private final JWTService jwtService;
 
     @Autowired
-    public UserService(
+    public WalletService(
             UserRepository userRepository,
             CurrencyRepository currencyRepository,
             WalletRepository walletRepository,
@@ -63,30 +57,6 @@ public class UserService implements UserDetailsService {
         return new UserPrincipal(user);
     }
 
-    @Transactional
-    public void registerUser(User user) {
-        Currency currency = currencyRepository.findByType(CurrencyType.INR)
-                .orElseThrow(() -> new IllegalArgumentException("Currency not found"));
-
-        if (userRepository.findByUsername(user.getUsername()).isPresent()) {
-            ResponseEntity.badRequest().body("Username already taken");
-            return;
-        }
-
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        Wallet wallet = new Wallet(currency, user);
-        userRepository.save(user);
-        walletRepository.save(wallet);
-    }
-
-    public User getUser(String username) throws UserNotFoundException {
-        return this.findUserByUsername(username);
-    }
-
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
-    }
-
     private User findUserByUsername(String username) throws UserNotFoundException {
         return userRepository.findByUsername(username)
                 .orElseThrow(UserNotFoundException::new);
@@ -97,22 +67,28 @@ public class UserService implements UserDetailsService {
                 .orElseThrow(WalletNotFoundException::new);
     }
 
-    public String verify(User user) {
-        try {
-            Authentication authentication = authManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            user.getUsername(),
-                            user.getPassword()
-                    )
-            );
-            if (authentication.isAuthenticated()) {
-                return jwtService.generateToken(user.getUsername());
-            } else {
-                return "Authentication Failed";
-            }
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            return "Invalid Credentials";
-        }
+
+    public void depositMoneyToWallet(TransactionRequest transactionRequest) throws UserNotFoundException {
+        User user = findUserByUsername(transactionRequest.getUsername());
+        Wallet wallet = findWalletByUserId(user.getId());
+
+        Currency currency = currencyRepository.findByType(CurrencyType.valueOf(transactionRequest.getCurrency()))
+                .orElseThrow(() -> new IllegalArgumentException("Currency not found"));
+
+        Value value = new Value(transactionRequest.getAmount(), currency);
+        wallet.depositMoney(value);
+        walletRepository.save(wallet);
+    }
+
+    public void withdrawMoneyFromWallet(TransactionRequest transactionRequest) throws UserNotFoundException {
+        User user = findUserByUsername(transactionRequest.getUsername());
+        Wallet wallet = findWalletByUserId(user.getId());
+
+        Currency currency = currencyRepository.findByType(CurrencyType.valueOf(transactionRequest.getCurrency()))
+                .orElseThrow(() -> new IllegalArgumentException("Currency not found"));
+
+        Value value = new Value(transactionRequest.getAmount(), currency);
+        wallet.withdrawMoney(value);
+        walletRepository.save(wallet);
     }
 }

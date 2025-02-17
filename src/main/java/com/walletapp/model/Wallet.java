@@ -1,6 +1,5 @@
 package com.walletapp.model;
 
-import com.walletapp.dto.TransactionRequest;
 import com.walletapp.exceptions.InsufficientBalanceException;
 import com.walletapp.exceptions.InvalidAmountException;
 import com.walletapp.model.currency.Currency;

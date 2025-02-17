@@ -14,8 +14,10 @@ public class Value {
         this.amount = amount;
         this.currency = currency;
     }
+
     public Value() {
     }
+
     public double getAmount() {
         return amount;
     }
