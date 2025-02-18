@@ -1,4 +1,4 @@
-package com.walletapp.model;
+package com.walletapp.model.user;
 
 import jakarta.persistence.*;
 

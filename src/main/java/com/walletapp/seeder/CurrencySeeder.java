@@ -1,6 +1,6 @@
 package com.walletapp.seeder;
 
-import com.walletapp.model.User;
+import com.walletapp.model.user.User;
 import com.walletapp.model.currency.Currency;
 import com.walletapp.model.currency.CurrencyType;
 import com.walletapp.repository.CurrencyRepository;

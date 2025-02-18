@@ -3,9 +3,9 @@ package com.walletapp.service;
 import com.walletapp.dto.transaction.TransactionRequest;
 import com.walletapp.exceptions.UserNotFoundException;
 import com.walletapp.exceptions.WalletNotFoundException;
-import com.walletapp.model.User;
-import com.walletapp.model.UserPrincipal;
-import com.walletapp.model.Wallet;
+import com.walletapp.model.user.User;
+import com.walletapp.model.user.UserPrincipal;
+import com.walletapp.model.wallet.Wallet;
 import com.walletapp.model.currency.Currency;
 import com.walletapp.model.currency.CurrencyType;
 import com.walletapp.model.currency.Value;
@@ -21,6 +21,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import org.springframework.security.core.userdetails.UserDetailsService;
+
+import java.util.Objects;
 
 
 @Service
@@ -62,14 +64,19 @@ public class WalletService implements UserDetailsService {
                 .orElseThrow(UserNotFoundException::new);
     }
 
-    private Wallet findWalletByUserId(Long userId){
+    Wallet findWalletByUserId(Long userId){
         return walletRepository.findByUserId(userId)
                 .orElseThrow(WalletNotFoundException::new);
     }
 
+    Wallet findWalletById(Long walletId){
+        return walletRepository.findById(walletId)
+                .orElseThrow(WalletNotFoundException::new);
+    }
 
-    public void depositMoneyToWallet(TransactionRequest transactionRequest) throws UserNotFoundException {
-        User user = findUserByUsername(transactionRequest.getUsername());
+
+    public void depositMoneyToWallet(TransactionRequest transactionRequest, String username) throws UserNotFoundException {
+        User user = findUserByUsername(username);
         Wallet wallet = findWalletByUserId(user.getId());
 
         Currency currency = currencyRepository.findByType(CurrencyType.valueOf(transactionRequest.getCurrency()))
@@ -80,8 +87,8 @@ public class WalletService implements UserDetailsService {
         walletRepository.save(wallet);
     }
 
-    public void withdrawMoneyFromWallet(TransactionRequest transactionRequest) throws UserNotFoundException {
-        User user = findUserByUsername(transactionRequest.getUsername());
+    public void withdrawMoneyFromWallet(TransactionRequest transactionRequest, String username) throws UserNotFoundException {
+        User user = findUserByUsername(username);
         Wallet wallet = findWalletByUserId(user.getId());
 
         Currency currency = currencyRepository.findByType(CurrencyType.valueOf(transactionRequest.getCurrency()))
@@ -90,5 +97,13 @@ public class WalletService implements UserDetailsService {
         Value value = new Value(transactionRequest.getAmount(), currency);
         wallet.withdrawMoney(value);
         walletRepository.save(wallet);
+    }
+
+    public Wallet verifyUserWallet(Long userId, Long walletId) {
+        Wallet wallet = findWalletById(walletId);
+        if(Objects.equals(wallet.getUser().getId(), userId)){
+            return wallet;
+        }
+        return null;
     }
 }

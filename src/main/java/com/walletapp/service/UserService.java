@@ -1,20 +1,19 @@
 package com.walletapp.service;
 
-import com.walletapp.dto.transaction.TransactionRequest;
 import com.walletapp.exceptions.UserNotFoundException;
 import com.walletapp.exceptions.WalletNotFoundException;
-import com.walletapp.model.User;
-import com.walletapp.model.UserPrincipal;
-import com.walletapp.model.Wallet;
+import com.walletapp.model.user.User;
+import com.walletapp.model.user.UserPrincipal;
+import com.walletapp.model.wallet.Wallet;
 import com.walletapp.model.currency.Currency;
 import com.walletapp.model.currency.CurrencyType;
-import com.walletapp.model.currency.Value;
 import com.walletapp.repository.CurrencyRepository;
 import com.walletapp.repository.UserRepository;
 import com.walletapp.repository.WalletRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Primary;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -30,6 +29,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 
 
 @Service
+@Primary
 public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
@@ -64,19 +64,20 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public void registerUser(User user) {
+    public String registerUser(User user) {
         Currency currency = currencyRepository.findByType(CurrencyType.INR)
                 .orElseThrow(() -> new IllegalArgumentException("Currency not found"));
 
         if (userRepository.findByUsername(user.getUsername()).isPresent()) {
             ResponseEntity.badRequest().body("Username already taken");
-            return;
+            return null;
         }
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         Wallet wallet = new Wallet(currency, user);
         userRepository.save(user);
         walletRepository.save(wallet);
+        return jwtService.generateToken(user.getUsername());
     }
 
     public User getUser(String username) throws UserNotFoundException {
@@ -87,8 +88,13 @@ public class UserService implements UserDetailsService {
         return userRepository.findAll();
     }
 
-    private User findUserByUsername(String username) throws UserNotFoundException {
+    User findUserByUsername(String username) throws UserNotFoundException {
         return userRepository.findByUsername(username)
+                .orElseThrow(UserNotFoundException::new);
+    }
+
+    User findUserById(Long id) throws UserNotFoundException {
+        return userRepository.findById(id)
                 .orElseThrow(UserNotFoundException::new);
     }
 
@@ -111,8 +117,17 @@ public class UserService implements UserDetailsService {
                 return "Authentication Failed";
             }
         } catch (Exception e) {
+            System.out.println(e);
             System.out.println(e.getMessage());
             return "Invalid Credentials";
         }
+    }
+
+    public User verifyUsername(Long userId, String username) throws UserNotFoundException {
+        User user = findUserById(userId);
+        if(user.getUsername().equals(username)){
+            return user;
+        }
+        return null;
     }
 }

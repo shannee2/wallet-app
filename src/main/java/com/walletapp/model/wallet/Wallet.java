@@ -1,10 +1,11 @@
-package com.walletapp.model;
+package com.walletapp.model.wallet;
 
 import com.walletapp.exceptions.InsufficientBalanceException;
 import com.walletapp.exceptions.InvalidAmountException;
 import com.walletapp.model.currency.Currency;
 import com.walletapp.model.currency.CurrencyType;
 import com.walletapp.model.currency.Value;
+import com.walletapp.model.user.User;
 import jakarta.persistence.*;
 
 @Entity
@@ -69,5 +70,13 @@ public class Wallet {
 
     public Value getBalance() {
         return this.balance;
+    }
+
+    public Long getId() {
+        return this.id;
+    }
+
+    public User getUser() {
+        return this.user;
     }
 }

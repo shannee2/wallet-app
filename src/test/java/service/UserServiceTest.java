@@ -1,13 +1,10 @@
 package service;
 
-import com.walletapp.dto.transaction.TransactionRequest;
-import com.walletapp.dto.transaction.TransactionType;
 import com.walletapp.exceptions.UserNotFoundException;
-import com.walletapp.model.User;
-import com.walletapp.model.Wallet;
+import com.walletapp.model.user.User;
+import com.walletapp.model.wallet.Wallet;
 import com.walletapp.model.currency.Currency;
 import com.walletapp.model.currency.CurrencyType;
-import com.walletapp.model.currency.Value;
 import com.walletapp.repository.CurrencyRepository;
 import com.walletapp.repository.UserRepository;
 import com.walletapp.repository.WalletRepository;

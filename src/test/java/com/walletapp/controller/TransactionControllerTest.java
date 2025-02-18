@@ -2,9 +2,8 @@ package com.walletapp.controller;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.walletapp.dto.transaction.TransactionRequest;
-import com.walletapp.dto.transaction.TransactionType;
 import com.walletapp.handler.TransactionHandler;
+import com.walletapp.model.transaction.Transaction;
 import com.walletapp.registry.TransactionHandlerRegistry;
 import com.walletapp.service.WalletService;
 import org.junit.jupiter.api.Test;
@@ -26,7 +25,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @AutoConfigureMockMvc(addFilters = false)
 @SpringBootTest
-public class WalletControllerTest {
+public class TransactionControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -57,8 +56,8 @@ public class WalletControllerTest {
 
         String jsonRequest = objectMapper.writeValueAsString(requestBody);
 
-        Mockito.when(transactionHandlerRegistry.getHandler(TransactionType.DEPOSIT)).thenReturn(depositHandler);
-        Mockito.doNothing().when(depositHandler).handle(Mockito.any());
+        Mockito.when(transactionHandlerRegistry.getHandler(Transaction.TransactionType.DEPOSIT)).thenReturn(depositHandler);
+        Mockito.doNothing().when(depositHandler).handle(Mockito.any(), username, username, walletId);
 
         mockMvc.perform(post("/wallet")
                         .contentType(APPLICATION_JSON)
@@ -76,8 +75,8 @@ public class WalletControllerTest {
 
         String jsonRequest = objectMapper.writeValueAsString(requestBody);  // Create the JSON
 
-        Mockito.when(transactionHandlerRegistry.getHandler(TransactionType.WITHDRAW)).thenReturn(depositHandler);
-        Mockito.doNothing().when(depositHandler).handle(Mockito.any());
+        Mockito.when(transactionHandlerRegistry.getHandler(Transaction.TransactionType.WITHDRAW)).thenReturn(depositHandler);
+        Mockito.doNothing().when(depositHandler).handle(Mockito.any(), username, username, walletId);
 
         mockMvc.perform(post("/wallet")
                         .contentType(APPLICATION_JSON)

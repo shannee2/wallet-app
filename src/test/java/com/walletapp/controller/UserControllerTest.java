@@ -2,9 +2,7 @@ package com.walletapp.controller;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.walletapp.dto.transaction.TransactionRequest;
-import com.walletapp.dto.transaction.TransactionType;
-import com.walletapp.model.User;
+import com.walletapp.model.user.User;
 import com.walletapp.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

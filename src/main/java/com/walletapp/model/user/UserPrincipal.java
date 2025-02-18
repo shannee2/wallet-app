@@ -1,4 +1,4 @@
-package com.walletapp.model;
+package com.walletapp.model.user;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

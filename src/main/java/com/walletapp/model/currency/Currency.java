@@ -19,4 +19,16 @@ public class Currency {
         this.type = type;
         this.conversionFactor = conversionFactor;
     }
+
+    public Long getId() {
+        return id;
+    }
+
+    public CurrencyType getType() {
+        return type;
+    }
+
+    public double getConversionFactor() {
+        return conversionFactor;
+    }
 }

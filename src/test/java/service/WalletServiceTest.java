@@ -1,10 +1,10 @@
 package service;
 
 import com.walletapp.dto.transaction.TransactionRequest;
-import com.walletapp.dto.transaction.TransactionType;
 import com.walletapp.exceptions.UserNotFoundException;
-import com.walletapp.model.User;
-import com.walletapp.model.Wallet;
+import com.walletapp.model.transaction.Transaction;
+import com.walletapp.model.user.User;
+import com.walletapp.model.wallet.Wallet;
 import com.walletapp.model.currency.Currency;
 import com.walletapp.model.currency.CurrencyType;
 import com.walletapp.model.currency.Value;
@@ -68,13 +68,13 @@ public class WalletServiceTest {
 
     @Test
     void testDepositMoneyToWallet() throws UserNotFoundException {
-        TransactionRequest request = new TransactionRequest("testUser", 500.0, "INR", TransactionType.DEPOSIT);
+        TransactionRequest request = new TransactionRequest("testUser", 500.0, "INR", Transaction.TransactionType.DEPOSIT);
 
         when(userRepository.findByUsername("testUser")).thenReturn(Optional.of(user));
         when(walletRepository.findByUserId(user.getId())).thenReturn(Optional.of(wallet));
         when(currencyRepository.findByType(CurrencyType.INR)).thenReturn(Optional.of(new Currency(CurrencyType.INR, 1.0)));
 
-        walletService.depositMoneyToWallet(request);
+        walletService.depositMoneyToWallet(request, username);
 
         verify(walletRepository).save(any(Wallet.class));
         assertEquals(500.0, wallet.getBalance().getAmount());
@@ -82,7 +82,7 @@ public class WalletServiceTest {
 
     @Test
     public void testWithdrawMoneyFromWallet() throws UserNotFoundException {
-        TransactionRequest request = new TransactionRequest("testUser", 50.0, "INR", TransactionType.WITHDRAW);
+        TransactionRequest request = new TransactionRequest("testUser", 50.0, "INR", Transaction.TransactionType.WITHDRAW);
         User user = new User();
         user.setId(1L);
         Wallet wallet = new Wallet(new Currency(CurrencyType.INR, 1.0), user);
@@ -92,7 +92,7 @@ public class WalletServiceTest {
         when(walletRepository.findByUserId(1L)).thenReturn(Optional.of(wallet));
         when(currencyRepository.findByType(CurrencyType.INR)).thenReturn(Optional.of(new Currency(CurrencyType.INR, 1.0)));
 
-        walletService.withdrawMoneyFromWallet(request);
+        walletService.withdrawMoneyFromWallet(request, username);
 
         assertEquals(50.0, wallet.getBalance().getAmount());
         verify(walletRepository).save(wallet);

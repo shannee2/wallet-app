@@ -4,6 +4,7 @@ import com.walletapp.exceptions.InvalidAmountException;
 import com.walletapp.model.currency.Currency;
 import com.walletapp.model.currency.CurrencyType;
 import com.walletapp.model.currency.Value;
+import com.walletapp.model.wallet.Wallet;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

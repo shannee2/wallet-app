@@ -1,14 +1,11 @@
 package com.walletapp.model;
-import com.walletapp.exceptions.InsufficientBalanceException;
 import com.walletapp.model.currency.Currency;
 import com.walletapp.model.currency.CurrencyType;
-import com.walletapp.model.currency.Value;
+import com.walletapp.model.user.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 public class UserTest {

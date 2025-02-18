@@ -1,6 +1,6 @@
 package com.walletapp.repository;
 
-import com.walletapp.model.Wallet;
+import com.walletapp.model.wallet.Wallet;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

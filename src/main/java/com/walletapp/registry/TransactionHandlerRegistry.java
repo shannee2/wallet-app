@@ -1,7 +1,8 @@
 package com.walletapp.registry;
 
-import com.walletapp.dto.transaction.TransactionType;
 import com.walletapp.handler.TransactionHandler;
+import com.walletapp.model.transaction.Transaction;
+import com.walletapp.model.transaction.TransactionType;
 import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import java.util.HashMap;
