@@ -65,11 +65,6 @@ public class UserService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
         return new UserPrincipal(user);
     }
-//
-//    public UserDetails getUserById(Long userId) throws UsernameNotFoundException {
-//        User user = getUserById(userId);
-//        return new UserPrincipal(user);
-//    }
 
     @Transactional
     public UserResponse registerUser(User user) {

@@ -26,6 +26,9 @@ public class WalletHandlerRegistry {
     }
 
     public WalletHandler getHandler(TransactionType type) {
+        if(!handlers.containsKey(type)){
+            throw new IllegalArgumentException("Invalid transaction type");
+        }
         return handlers.get(type);
     }
 }

@@ -1,13 +1,12 @@
 package com.walletapp.model.transaction;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.walletapp.model.user.User;
 import com.walletapp.model.wallet.Wallet;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "transaction_participants")
-public class TransactionParticipant {
+@Table(name = "transaction_wallet")
+public class TransactionWallet {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,9 +17,9 @@ public class TransactionParticipant {
     @JsonManagedReference
     private Transaction transaction;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "user_id", nullable = false)
+//    private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "wallet_id", nullable = false)
@@ -28,15 +27,15 @@ public class TransactionParticipant {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private ParticipantRole role;
+    private TransactionWalletType transactionWalletType;
 
-    public TransactionParticipant() {}
+    public TransactionWallet() {}
 
-    public TransactionParticipant(Transaction transaction, User user, Wallet wallet, ParticipantRole role) {
+    public TransactionWallet(Transaction transaction, Wallet wallet, TransactionWalletType transactionWalletType) {
         this.transaction = transaction;
-        this.user = user;
+//        this.user = user;
         this.wallet = wallet;
-        this.role = role;
+        this.transactionWalletType = transactionWalletType;
     }
 
     public Long getId() {
@@ -47,15 +46,15 @@ public class TransactionParticipant {
         return transaction;
     }
 
-    public User getUser() {
-        return user;
-    }
+//    public User getUser() {
+//        return user;
+//    }
 
     public Wallet getWallet() {
         return wallet;
     }
 
-    public ParticipantRole getRole() {
-        return role;
+    public TransactionWalletType getTransactionWalletType() {
+        return transactionWalletType;
     }
 }

@@ -1,8 +1,6 @@
 package com.walletapp.model.transaction;
 
-import jakarta.persistence.Embeddable;
-
-public enum ParticipantRole {
+public enum TransactionWalletType {
     SENDER,
     RECEIVER,
     SELF

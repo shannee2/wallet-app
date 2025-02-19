@@ -33,14 +33,7 @@ public class TransactionController {
             @RequestBody TransactionRequest transactionRequest,
             @PathVariable Long walletId, @PathVariable Long userId) {
         try {
-            String username = SecurityContextHolder.getContext().getAuthentication().getName();
-//            TransactionHandler handler = transactionHandlerRegistry.getHandler(transactionRequest.getType());
-//
-//            if (handler == null) {
-//                return ResponseEntity.badRequest().body(null);
-//            }
-//
-//            TransactionResponse response = handler.handle(transactionRequest, Long.valueOf(userId), username, walletId);
+//            String userId = SecurityContextHolder.getContext().getAuthentication().getName();
             TransactionResponse response = transactionService.createTransaction(transactionRequest, userId, walletId);
             return ResponseEntity.ok(
                     response
@@ -56,9 +49,7 @@ public class TransactionController {
     public ResponseEntity<?> getTransactions(
             @PathVariable Long walletId, @PathVariable Long userId) {
         try {
-//            String username = SecurityContextHolder.getContext().getAuthentication().getName();
             List<TransactionResponse> response = transactionService.getTransactions(userId, walletId);
-
             return ResponseEntity.ok(
                     response
             );

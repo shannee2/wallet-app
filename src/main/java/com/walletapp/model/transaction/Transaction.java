@@ -9,7 +9,7 @@ import com.walletapp.model.currency.Currency;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "transactions")
+@Table(name = "transaction")
 public class Transaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,7 +32,7 @@ public class Transaction {
 
     @OneToMany(mappedBy = "transaction", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
-    private List<TransactionParticipant> participants = new ArrayList<>();;
+    private List<TransactionWallet> transactionWallets = new ArrayList<>();
 
     public Transaction() {
         this.date = new Date();
@@ -65,11 +65,19 @@ public class Transaction {
         return currency;
     }
 
-    public List<TransactionParticipant> getParticipants() {
-        return participants;
+    public List<TransactionWallet> getTransactionRoles() {
+        return transactionWallets;
     }
 
-    public void setParticipants(List<TransactionParticipant> participants) {
-        this.participants = participants;
+    public void setId(long id) {
+        this.id = id;
     }
+
+    public void setDate(Date date) {
+        this.date = date;
+    }
+
+//    public void setTransactionRoles(List<TransactionRole> participants) {
+//        this.transactionRoles = participants;
+//    }
 }

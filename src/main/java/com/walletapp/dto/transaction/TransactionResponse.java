@@ -6,7 +6,6 @@ import com.walletapp.model.transaction.TransactionType;
 
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class TransactionResponse {
     private final Long transactionId;
@@ -14,15 +13,16 @@ public class TransactionResponse {
     private final double amount;
     private final Date date;
     private final TransactionType transactionType;
-    private final List<TransactionParticipantDTO> participants;
+    private final List<TransactionWalletDTO> transactionWallets;
 
-    public TransactionResponse(Transaction transaction, List<TransactionParticipantDTO> participantResponses) {
+    public TransactionResponse(Transaction transaction, List<TransactionWalletDTO> transactionWallets) {
+        System.out.println(transactionWallets);
         this.transactionId = transaction.getId();
         this.currencyType = transaction.getCurrency().getType();
         this.amount = transaction.getAmount();
         this.date = transaction.getDate();
         this.transactionType = transaction.getType();
-        this.participants = participantResponses;
+        this.transactionWallets = transactionWallets;
     }
 
     public Long getTransactionId() {
@@ -45,7 +45,7 @@ public class TransactionResponse {
         return transactionType;
     }
 
-    public List<TransactionParticipantDTO> getParticipants() {
-        return participants;
+    public List<TransactionWalletDTO> getTransactionWallets() {
+        return transactionWallets;
     }
 }

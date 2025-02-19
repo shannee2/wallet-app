@@ -1,17 +1,12 @@
 package com.walletapp.dto.transaction;
 
-import com.walletapp.model.transaction.Transaction;
-import com.walletapp.model.transaction.TransactionParticipant;
 import com.walletapp.model.transaction.TransactionType;
-import com.walletapp.service.TransactionService;
-
-import java.util.List;
 
 public class TransactionRequest {
     private double amount;
     private String currency;
     private TransactionType transactionType;
-    private TransactionParticipantDTO transactionParticipant;
+    private TransactionWalletDTO transactionWallet;
 
     public TransactionRequest() {}
 
@@ -19,14 +14,14 @@ public class TransactionRequest {
         this.amount = amount;
         this.currency = currency;
         this.transactionType = transactionType;
-        this.transactionParticipant = null;
+        this.transactionWallet = null;
     }
 
-    public TransactionRequest(double amount, String currency, TransactionType transactionType, TransactionParticipantDTO transactionParticipant) {
+    public TransactionRequest(double amount, String currency, TransactionType transactionType, TransactionWalletDTO transactionWallet) {
         this.amount = amount;
         this.currency = currency;
         this.transactionType = transactionType;
-        this.transactionParticipant = transactionParticipant;
+        this.transactionWallet = transactionWallet;
     }
 
     public double getAmount() {
@@ -54,7 +49,7 @@ public class TransactionRequest {
         return transactionType;
     }
 
-    public TransactionParticipantDTO getTransactionParticipant() {
-        return transactionParticipant;
+    public TransactionWalletDTO getTransactionWallet() {
+        return transactionWallet;
     }
 }

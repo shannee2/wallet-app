@@ -66,86 +66,45 @@ public class WalletService implements UserDetailsService {
         return new UserPrincipal(user);
     }
 
-    private User findUserByUsername(String username) throws UserNotFoundException {
-        return userRepository.findByUsername(username)
-                .orElseThrow(UserNotFoundException::new);
-    }
-
-    public Wallet findWalletByUserId(Long userId){
-        return walletRepository.findByUserId(userId)
-                .orElseThrow(WalletNotFoundException::new);
-    }
+//    private User findUserByUsername(String username) throws UserNotFoundException {
+//        return userRepository.findByUsername(username)
+//                .orElseThrow(UserNotFoundException::new);
+//    }
+//
+//    public Wallet findWalletByUserId(Long userId){
+//        return walletRepository.findByUserId(userId)
+//                .orElseThrow(WalletNotFoundException::new);
+//    }
 
     public Wallet findWalletById(Long walletId){
         return walletRepository.findById(walletId)
                 .orElseThrow(WalletNotFoundException::new);
     }
 
-    public void depositMoneyToWallet(TransactionRequest transactionRequest, Long userId, Long walletId) throws UserNotFoundException, AccessDeniedException {
-        User user = userService.getUserById(userId);
+    public Wallet depositMoneyToWallet(TransactionRequest transactionRequest, Long walletId) throws UserNotFoundException, AccessDeniedException {
         Wallet wallet = findWalletById(walletId);
-        depositMoneyToWallet(transactionRequest, user, wallet);
-
-//        if(!Objects.equals(user.getId(), wallet.getUser().getId())){
-//            throw new AccessDeniedException("Access Denied");
-//        }
-//
-//        Currency currency = currencyService.getCurrency(transactionRequest.getCurrency());
-//
-//        Value value = new Value(transactionRequest.getAmount(), currency);
-//        wallet.depositMoney(value);
-//        walletRepository.save(wallet);
-    }
-
-    public void depositMoneyToWallet(TransactionRequest transactionRequest, User user, Wallet wallet) throws UserNotFoundException, AccessDeniedException {
-
-        if(!Objects.equals(user.getId(), wallet.getUser().getId())){
-            throw new AccessDeniedException("Access Denied");
-        }
-
         Currency currency = currencyService.getCurrency(transactionRequest.getCurrency());
 
         Value value = new Value(transactionRequest.getAmount(), currency);
         wallet.depositMoney(value);
-        walletRepository.save(wallet);
+        return walletRepository.save(wallet);
     }
 
-
-
-    public void withdrawMoneyFromWallet(TransactionRequest transactionRequest, Long userId, Long walletId) throws UserNotFoundException, AccessDeniedException {
-        User user = userService.getUserById(userId);
+    public Wallet withdrawMoneyFromWallet(TransactionRequest transactionRequest, Long walletId) throws UserNotFoundException, AccessDeniedException {
         Wallet wallet = findWalletById(walletId);
-
-        withdrawMoneyFromWallet(transactionRequest, user, wallet);
-
-//        if(!Objects.equals(user.getId(), wallet.getUser().getId())){
-//            throw new AccessDeniedException("Access Denied");
-//        }
-//
-//        Currency currency = currencyService.getCurrency(transactionRequest.getCurrency());
-//
-//        Value value = new Value(transactionRequest.getAmount(), currency);
-//        wallet.withdrawMoney(value);
-//        walletRepository.save(wallet);
-    }
-
-    public void withdrawMoneyFromWallet(TransactionRequest transactionRequest, User user, Wallet wallet) throws UserNotFoundException, AccessDeniedException {
-        if(!Objects.equals(user.getId(), wallet.getUser().getId())){
-            throw new AccessDeniedException("Access Denied");
-        }
 
         Currency currency = currencyService.getCurrency(transactionRequest.getCurrency());
 
         Value value = new Value(transactionRequest.getAmount(), currency);
         wallet.withdrawMoney(value);
-        walletRepository.save(wallet);
+        return walletRepository.save(wallet);
     }
 
-    public Wallet verifyUserWallet(Long userId, Long walletId) {
-        Wallet wallet = findWalletById(walletId);
-        if(Objects.equals(wallet.getUser().getId(), userId)){
-            return wallet;
-        }
-        return null;
-    }
+//    public Wallet verifyUserWallet(Long userId, Long walletId) {
+//        Wallet wallet = findWalletById(walletId);
+//        if(Objects.equals(wallet.getUser().getId(), userId)){
+//            return wallet;
+//        }
+//        return null;
+//    }
 }
