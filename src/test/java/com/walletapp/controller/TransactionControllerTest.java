@@ -2,9 +2,9 @@ package com.walletapp.controller;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.walletapp.handler.TransactionHandler;
+import com.walletapp.handler.WalletHandler;
 import com.walletapp.model.transaction.Transaction;
-import com.walletapp.registry.TransactionHandlerRegistry;
+import com.walletapp.registry.WalletHandlerRegistry;
 import com.walletapp.service.WalletService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -38,13 +38,13 @@ public class TransactionControllerTest {
     private String register = "/users";
 
     @MockitoBean
-    private TransactionHandlerRegistry transactionHandlerRegistry;
+    private WalletHandlerRegistry walletHandlerRegistry;
 
     @MockitoBean  // Mock the specific handlers
-    private TransactionHandler depositHandler;
+    private WalletHandler depositHandler;
 
     @MockitoBean   // Mock the specific handlers
-    private TransactionHandler withdrawHandler;
+    private WalletHandler withdrawHandler;
 
     @Test
     public void testDepositMoney() throws Exception {
@@ -56,7 +56,7 @@ public class TransactionControllerTest {
 
         String jsonRequest = objectMapper.writeValueAsString(requestBody);
 
-        Mockito.when(transactionHandlerRegistry.getHandler(Transaction.TransactionType.DEPOSIT)).thenReturn(depositHandler);
+        Mockito.when(walletHandlerRegistry.getHandler(Transaction.TransactionType.DEPOSIT)).thenReturn(depositHandler);
         Mockito.doNothing().when(depositHandler).handle(Mockito.any(), username, username, walletId);
 
         mockMvc.perform(post("/wallet")
@@ -75,7 +75,7 @@ public class TransactionControllerTest {
 
         String jsonRequest = objectMapper.writeValueAsString(requestBody);  // Create the JSON
 
-        Mockito.when(transactionHandlerRegistry.getHandler(Transaction.TransactionType.WITHDRAW)).thenReturn(depositHandler);
+        Mockito.when(walletHandlerRegistry.getHandler(Transaction.TransactionType.WITHDRAW)).thenReturn(depositHandler);
         Mockito.doNothing().when(depositHandler).handle(Mockito.any(), username, username, walletId);
 
         mockMvc.perform(post("/wallet")

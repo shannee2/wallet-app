@@ -1,6 +1,7 @@
 package com.walletapp.controller;
 
-import com.walletapp.dto.general.UserResponse;
+import com.walletapp.dto.user.UserResponse;
+import com.walletapp.dto.user.UserRequest;
 import com.walletapp.exceptions.UserNotFoundException;
 import com.walletapp.model.user.User;
 import com.walletapp.service.UserService;
@@ -24,19 +25,20 @@ public class UserController {
 
     @PostMapping
     public ResponseEntity<?> registerUser(@RequestBody User user) {
-        String token = userService.registerUser(user);
-        return ResponseEntity.status(HttpStatus.CREATED).body(new UserResponse(true, 201,"User registered successfully", token));
+        UserResponse response = userService.registerUser(user);
+        System.out.println(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> loginUser(@RequestBody User user) {
-        String token = userService.verify(user);
-        return ResponseEntity.ok(new UserResponse(true, 200,"Login success", token));
+    public ResponseEntity<?> loginUser(@RequestBody UserRequest userRequest) {
+        UserResponse response = userService.verify(userRequest);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{username}")
     public User getUser(@PathVariable String username) throws UserNotFoundException {
-        return userService.getUser(username);
+        return userService.getUserByUsername(username);
     }
 
     @GetMapping

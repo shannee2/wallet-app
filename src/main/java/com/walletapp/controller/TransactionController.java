@@ -3,8 +3,7 @@ package com.walletapp.controller;
 import com.walletapp.dto.general.ErrorResponse;
 import com.walletapp.dto.transaction.TransactionRequest;
 import com.walletapp.dto.transaction.TransactionResponse;
-import com.walletapp.handler.TransactionHandler;
-import com.walletapp.registry.TransactionHandlerRegistry;
+import com.walletapp.registry.WalletHandlerRegistry;
 import com.walletapp.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,13 +17,13 @@ import java.util.List;
 @RequestMapping("users/{userId}/wallets")
 public class TransactionController {
 
-    private final TransactionHandlerRegistry transactionHandlerRegistry;
+    private final WalletHandlerRegistry walletHandlerRegistry;
     private final TransactionService transactionService;
 
 
     @Autowired
-    public TransactionController(TransactionHandlerRegistry transactionHandlerRegistry, TransactionService transactionService) {
-        this.transactionHandlerRegistry = transactionHandlerRegistry;
+    public TransactionController(WalletHandlerRegistry walletHandlerRegistry, TransactionService transactionService) {
+        this.walletHandlerRegistry = walletHandlerRegistry;
         this.transactionService = transactionService;
     }
 
@@ -32,16 +31,17 @@ public class TransactionController {
     @PostMapping("/{walletId}/transactions")
     public ResponseEntity<?> createTransaction(
             @RequestBody TransactionRequest transactionRequest,
-            @PathVariable Long walletId, @PathVariable String userId) {
+            @PathVariable Long walletId, @PathVariable Long userId) {
         try {
             String username = SecurityContextHolder.getContext().getAuthentication().getName();
-            TransactionHandler handler = transactionHandlerRegistry.getHandler(transactionRequest.getType());
-
-            if (handler == null) {
-                return ResponseEntity.badRequest().body(null);
-            }
-
-            TransactionResponse response = handler.handle(transactionRequest, Long.valueOf(userId), username, walletId);
+//            TransactionHandler handler = transactionHandlerRegistry.getHandler(transactionRequest.getType());
+//
+//            if (handler == null) {
+//                return ResponseEntity.badRequest().body(null);
+//            }
+//
+//            TransactionResponse response = handler.handle(transactionRequest, Long.valueOf(userId), username, walletId);
+            TransactionResponse response = transactionService.createTransaction(transactionRequest, userId, walletId);
             return ResponseEntity.ok(
                     response
             );
@@ -56,8 +56,8 @@ public class TransactionController {
     public ResponseEntity<?> getTransactions(
             @PathVariable Long walletId, @PathVariable Long userId) {
         try {
-            String username = SecurityContextHolder.getContext().getAuthentication().getName();
-            List<TransactionResponse> response = transactionService.getTransactions(userId, username, walletId);
+//            String username = SecurityContextHolder.getContext().getAuthentication().getName();
+            List<TransactionResponse> response = transactionService.getTransactions(userId, walletId);
 
             return ResponseEntity.ok(
                     response

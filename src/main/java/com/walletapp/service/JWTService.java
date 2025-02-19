@@ -26,12 +26,13 @@ public class JWTService {
             throw new RuntimeException(e);
         }
     }
-    public String generateToken(String username) {
+    public String generateToken(Long userId) {
         Map<String, Object> claims = new HashMap<>();
+        System.out.println("Generating with userId: "+userId);
         return Jwts.builder()
                 .claims()
                 .add(claims)
-                .subject(username)
+                .subject(String.valueOf(userId))
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + 60 * 60 * 60))
                 .and()
@@ -44,8 +45,9 @@ public class JWTService {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String extractUsername(String token) {
-        return extractClaim(token, Claims::getSubject);
+    public Long extractUserId(String token) {
+        System.out.println("Extracted userId: "+Long.valueOf(extractClaim(token, Claims::getSubject)));
+        return Long.valueOf(extractClaim(token, Claims::getSubject));
     }
 
     private <T> T extractClaim(String token, Function<Claims, T> claimResolver) {
@@ -63,8 +65,10 @@ public class JWTService {
     }
 
     public boolean validateToken(String token, UserDetails userDetails) {
-        final String userName = extractUsername(token);
-        return (userName.equals(userDetails.getUsername()) && !isTokenExpired(token));
+        final Long userIdFromToken = extractUserId(token); // Correct: Get userId from token
+        Long userDetailsId = Long.parseLong(userDetails.getUsername()); // Get userId from userDetails
+        // Correct comparison and check expiry
+        return userIdFromToken.equals(userDetailsId) && !isTokenExpired(token); // Token is valid
     }
 
     private boolean isTokenExpired(String token) {

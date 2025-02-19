@@ -89,10 +89,10 @@ void testRegisterUser() {
 
 
     @Test
-    void testGetUser() throws UserNotFoundException {
+    void testGetUserByUsername() throws UserNotFoundException {
         when(userRepository.findByUsername("testUser")).thenReturn(Optional.of(user));
 
-        User foundUser = userService.getUser("testUser");
+        User foundUser = userService.getUserByUsername("testUser");
 
         assertEquals(user.getUsername(), foundUser.getUsername());
     }

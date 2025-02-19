@@ -1,31 +1,34 @@
 package com.walletapp.service;
 
+import com.walletapp.dto.transaction.TransactionParticipantDTO;
 import com.walletapp.dto.transaction.TransactionRequest;
 import com.walletapp.dto.transaction.TransactionResponse;
 import com.walletapp.exceptions.UserNotFoundException;
 import com.walletapp.exceptions.WalletNotFoundException;
+import com.walletapp.handler.WalletHandler;
 import com.walletapp.model.currency.Currency;
-import com.walletapp.model.currency.CurrencyType;
-import com.walletapp.model.transaction.Transaction;
-import com.walletapp.model.transaction.TransactionType;
+import com.walletapp.model.transaction.*;
 import com.walletapp.model.user.User;
 import com.walletapp.model.wallet.Wallet;
-import com.walletapp.repository.CurrencyRepository;
-import com.walletapp.repository.TransactionRepository;
-import com.walletapp.repository.UserRepository;
+import com.walletapp.registry.WalletHandlerRegistry;
+import com.walletapp.repository.*;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.nio.file.AccessDeniedException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class TransactionService {
 
     @Autowired
     private TransactionRepository transactionRepository;
+
+    @Autowired
+    private TransactionParticipantRepository participantRepository;
 
     @Autowired
     private UserService userService;
@@ -39,60 +42,82 @@ public class TransactionService {
     @Autowired
     private UserRepository userRepository;
 
-    public TransactionResponse createTransaction(TransactionRequest request, Long userId, String username, Long walletId) throws UserNotFoundException, WalletNotFoundException, AccessDeniedException {
-        User user = userService.verifyUsername(userId, username);
+    @Autowired
+    private CurrencyService currencyService;
+
+    @Autowired
+    private WalletHandlerRegistry walletHandlerRegistry;
+
+
+    public TransactionResponse createTransaction(TransactionRequest request, Long userId, Long walletId)
+            throws UserNotFoundException, WalletNotFoundException, AccessDeniedException {
+
+        User user = userService.getUserById(userId);
         Wallet wallet = walletService.verifyUserWallet(userId, walletId);
 
-        if(user == null && wallet ==null){
-            throw new AccessDeniedException("Access Denied");
-        }
+//        if (user == null || wallet == null) {
+//            throw new AccessDeniedException("Access Denied");
+//        }
 
-        Currency currency = currencyRepository.findByType(CurrencyType.valueOf(request.getCurrency()))
-                .orElseThrow(() -> new RuntimeException("Currency not found"));
+        Currency currency = currencyService.getCurrency(request.getCurrency());
+        Transaction transaction = new Transaction(request.getType(), request.getAmount(), currency);
 
-        if (request.getType() == TransactionType.DEPOSIT) {
-            walletService.depositMoneyToWallet(request, username);
-        } else if (request.getType() == TransactionType.WITHDRAW) {
-            walletService.withdrawMoneyFromWallet(request, username);
-        } else {
+        WalletHandler handler = walletHandlerRegistry.getHandler(request.getType());
+        if (handler == null) {
             throw new IllegalArgumentException("Invalid transaction type");
         }
 
-        Transaction transaction = new Transaction(wallet, user, request.getType(), request.getAmount(), currency);
+        List<TransactionParticipant> participants = handler.handle(request, user, wallet, transaction);
+
         transactionRepository.save(transaction);
-        return new TransactionResponse(transaction.getId(), transaction.getWallet().getId(), transaction.getUser().getId(), CurrencyType.valueOf(request.getCurrency()), request.getAmount(), transaction.getDate(), transaction.getType(), "Transaction Success");
+        participantRepository.saveAll(participants);
+
+        // Convert participants to DTOs
+        List<TransactionParticipantDTO> participantResponses = participants.stream()
+                .map(p -> new TransactionParticipantDTO(
+                        p.getUser().getId(),
+                        p.getWallet().getId(),
+                        p.getRole()))
+                .toList();
+
+        return new TransactionResponse(transaction, participantResponses);
     }
 
 
-    public List<TransactionResponse> getTransactions(Long userId, String username, Long walletId) throws UserNotFoundException, AccessDeniedException {
-        User user = userService.verifyUsername(userId, username);
+    public List<TransactionResponse> getTransactions(Long userId, Long walletId)
+            throws UserNotFoundException, AccessDeniedException {
+
+        User user = userService.getUserById(userId);
         Wallet wallet = walletService.verifyUserWallet(userId, walletId);
 
-        if(user == null && wallet ==null){
-            throw new AccessDeniedException("Access Denied");
-        }
+//        if (user == null || wallet == null) {
+//            throw new AccessDeniedException("Access Denied");
+//        }
 
-        List<Transaction> transactions = transactionRepository.findByWalletId(walletId);
-        List<TransactionResponse> transactionResponse = new ArrayList<>();
+        List<TransactionParticipant> participants = participantRepository.findByUser(user);
 
+        Map<Long, List<TransactionParticipant>> transactionParticipantMap = participants.stream()
+                .collect(Collectors.groupingBy(p -> p.getTransaction().getId()));
 
-        for(Transaction transaction: transactions) {
-            Long targetUserId = transaction.getTargetUser()!=null ? transaction.getTargetUser().getId() : null;
-            Long targetWalletId = transaction.getTargetWallet()!=null ? transaction.getTargetWallet().getId() : null;
+        List<Transaction> transactions = transactionParticipantMap.values().stream()
+                .map(list -> list.getFirst().getTransaction())
+                .toList();
 
-            TransactionResponse eachTransaction = new TransactionResponse(
-                    transaction.getId(),
-                    transaction.getWallet().getId(),
-                    transaction.getUser().getId(),
-                    transaction.getCurrency().getType(),
-                    transaction.getAmount(),
-                    transaction.getDate(),
-                    transaction.getType(),"Transaction Success",
-                    targetUserId,
-                    targetWalletId
-            );
-            transactionResponse.add(eachTransaction);
-        }
-        return transactionResponse;
+        return transactions.stream()
+                .map(transaction -> {
+                    List<TransactionParticipantDTO> participantResponses =
+                            transactionParticipantMap.get(transaction.getId())
+                            .stream()
+                            .map(p -> new TransactionParticipantDTO(
+                                    p.getUser().getId(),
+                                    p.getWallet().getId(),
+                                    p.getRole()))
+                            .toList();
+                    return new TransactionResponse(transaction, participantResponses);
+                })
+                .toList();
     }
+
+
+
 }

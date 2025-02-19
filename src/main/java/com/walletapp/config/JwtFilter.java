@@ -1,5 +1,8 @@
 package com.walletapp.config;
 
+import com.walletapp.exceptions.UserNotFoundException;
+import com.walletapp.model.user.User;
+import com.walletapp.model.user.UserPrincipal;
 import com.walletapp.service.JWTService;
 import com.walletapp.service.UserService;
 import jakarta.servlet.FilterChain;
@@ -31,15 +34,21 @@ public class JwtFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String authHeader = request.getHeader("Authorization");
         String token = null;
-        String username = null;
+        Long userId = null;
 
         if(authHeader!=null &&authHeader.startsWith("Bearer ")){
             token = authHeader.substring(7);
-            username = jwtService.extractUsername(token);
+            userId = jwtService.extractUserId(token);
         }
 
-        if(username != null && SecurityContextHolder.getContext().getAuthentication() == null){
-            UserDetails  userDetails = context.getBean(UserService.class).loadUserByUsername(username);
+        if(userId != null && SecurityContextHolder.getContext().getAuthentication() == null){
+            User user;
+            try {
+                user = context.getBean(UserService.class).getUserById(userId);
+            } catch (UserNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+            UserDetails userDetails = new UserPrincipal(user);
 
             if(jwtService.validateToken(token, userDetails)) {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());

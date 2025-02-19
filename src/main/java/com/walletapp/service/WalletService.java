@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import org.springframework.security.core.userdetails.UserDetailsService;
 
+import java.nio.file.AccessDeniedException;
 import java.util.Objects;
 
 
@@ -34,6 +35,8 @@ public class WalletService implements UserDetailsService {
     private final AuthenticationManager authManager;
     private final PasswordEncoder passwordEncoder;
     private final JWTService jwtService;
+    private final CurrencyService currencyService;
+    private final UserService userService;
 
     @Autowired
     public WalletService(
@@ -42,13 +45,17 @@ public class WalletService implements UserDetailsService {
             WalletRepository walletRepository,
             @Lazy AuthenticationManager authManager,
             PasswordEncoder encoder,
-            JWTService jwtService) {
+            CurrencyService currencyService,
+            JWTService jwtService,
+            UserService userService) {
         this.userRepository = userRepository;
         this.currencyRepository = currencyRepository;
         this.walletRepository = walletRepository;
         this.authManager = authManager;
         this.passwordEncoder = encoder;
         this.jwtService = jwtService;
+        this.currencyService = currencyService;
+        this.userService = userService;
     }
 
 
@@ -64,35 +71,70 @@ public class WalletService implements UserDetailsService {
                 .orElseThrow(UserNotFoundException::new);
     }
 
-    Wallet findWalletByUserId(Long userId){
+    public Wallet findWalletByUserId(Long userId){
         return walletRepository.findByUserId(userId)
                 .orElseThrow(WalletNotFoundException::new);
     }
 
-    Wallet findWalletById(Long walletId){
+    public Wallet findWalletById(Long walletId){
         return walletRepository.findById(walletId)
                 .orElseThrow(WalletNotFoundException::new);
     }
 
+    public void depositMoneyToWallet(TransactionRequest transactionRequest, Long userId, Long walletId) throws UserNotFoundException, AccessDeniedException {
+        User user = userService.getUserById(userId);
+        Wallet wallet = findWalletById(walletId);
+        depositMoneyToWallet(transactionRequest, user, wallet);
 
-    public void depositMoneyToWallet(TransactionRequest transactionRequest, String username) throws UserNotFoundException {
-        User user = findUserByUsername(username);
-        Wallet wallet = findWalletByUserId(user.getId());
+//        if(!Objects.equals(user.getId(), wallet.getUser().getId())){
+//            throw new AccessDeniedException("Access Denied");
+//        }
+//
+//        Currency currency = currencyService.getCurrency(transactionRequest.getCurrency());
+//
+//        Value value = new Value(transactionRequest.getAmount(), currency);
+//        wallet.depositMoney(value);
+//        walletRepository.save(wallet);
+    }
 
-        Currency currency = currencyRepository.findByType(CurrencyType.valueOf(transactionRequest.getCurrency()))
-                .orElseThrow(() -> new IllegalArgumentException("Currency not found"));
+    public void depositMoneyToWallet(TransactionRequest transactionRequest, User user, Wallet wallet) throws UserNotFoundException, AccessDeniedException {
+
+        if(!Objects.equals(user.getId(), wallet.getUser().getId())){
+            throw new AccessDeniedException("Access Denied");
+        }
+
+        Currency currency = currencyService.getCurrency(transactionRequest.getCurrency());
 
         Value value = new Value(transactionRequest.getAmount(), currency);
         wallet.depositMoney(value);
         walletRepository.save(wallet);
     }
 
-    public void withdrawMoneyFromWallet(TransactionRequest transactionRequest, String username) throws UserNotFoundException {
-        User user = findUserByUsername(username);
-        Wallet wallet = findWalletByUserId(user.getId());
 
-        Currency currency = currencyRepository.findByType(CurrencyType.valueOf(transactionRequest.getCurrency()))
-                .orElseThrow(() -> new IllegalArgumentException("Currency not found"));
+
+    public void withdrawMoneyFromWallet(TransactionRequest transactionRequest, Long userId, Long walletId) throws UserNotFoundException, AccessDeniedException {
+        User user = userService.getUserById(userId);
+        Wallet wallet = findWalletById(walletId);
+
+        withdrawMoneyFromWallet(transactionRequest, user, wallet);
+
+//        if(!Objects.equals(user.getId(), wallet.getUser().getId())){
+//            throw new AccessDeniedException("Access Denied");
+//        }
+//
+//        Currency currency = currencyService.getCurrency(transactionRequest.getCurrency());
+//
+//        Value value = new Value(transactionRequest.getAmount(), currency);
+//        wallet.withdrawMoney(value);
+//        walletRepository.save(wallet);
+    }
+
+    public void withdrawMoneyFromWallet(TransactionRequest transactionRequest, User user, Wallet wallet) throws UserNotFoundException, AccessDeniedException {
+        if(!Objects.equals(user.getId(), wallet.getUser().getId())){
+            throw new AccessDeniedException("Access Denied");
+        }
+
+        Currency currency = currencyService.getCurrency(transactionRequest.getCurrency());
 
         Value value = new Value(transactionRequest.getAmount(), currency);
         wallet.withdrawMoney(value);

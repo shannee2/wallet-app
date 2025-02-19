@@ -1,5 +1,7 @@
 package com.walletapp.service;
 
+import com.walletapp.dto.user.UserRequest;
+import com.walletapp.dto.user.UserResponse;
 import com.walletapp.exceptions.UserNotFoundException;
 import com.walletapp.exceptions.WalletNotFoundException;
 import com.walletapp.model.user.User;
@@ -23,6 +25,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -62,9 +65,14 @@ public class UserService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
         return new UserPrincipal(user);
     }
+//
+//    public UserDetails getUserById(Long userId) throws UsernameNotFoundException {
+//        User user = getUserById(userId);
+//        return new UserPrincipal(user);
+//    }
 
     @Transactional
-    public String registerUser(User user) {
+    public UserResponse registerUser(User user) {
         Currency currency = currencyRepository.findByType(CurrencyType.INR)
                 .orElseThrow(() -> new IllegalArgumentException("Currency not found"));
 
@@ -77,23 +85,21 @@ public class UserService implements UserDetailsService {
         Wallet wallet = new Wallet(currency, user);
         userRepository.save(user);
         walletRepository.save(wallet);
-        return jwtService.generateToken(user.getUsername());
+        String token = jwtService.generateToken(user.getId());
+        return new UserResponse(true, 201, "User Registered Successfully", token, user.getId());
     }
 
-    public User getUser(String username) throws UserNotFoundException {
-        return this.findUserByUsername(username);
+    public User getUserByUsername(String username) throws UserNotFoundException {
+        return userRepository.findByUsername(username)
+                .orElseThrow(UserNotFoundException::new);
     }
 
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
-    User findUserByUsername(String username) throws UserNotFoundException {
-        return userRepository.findByUsername(username)
-                .orElseThrow(UserNotFoundException::new);
-    }
 
-    User findUserById(Long id) throws UserNotFoundException {
+    public User getUserById(Long id) throws UserNotFoundException {
         return userRepository.findById(id)
                 .orElseThrow(UserNotFoundException::new);
     }
@@ -103,28 +109,32 @@ public class UserService implements UserDetailsService {
                 .orElseThrow(WalletNotFoundException::new);
     }
 
-    public String verify(User user) {
+    public UserResponse verify(UserRequest userRequest) {
+        String token = null;
+        User user = null;
         try {
             Authentication authentication = authManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            user.getUsername(),
-                            user.getPassword()
+                            userRequest.getUsername(),
+                            userRequest.getPassword()
                     )
             );
+            user = getUserByUsername(userRequest.getUsername());
             if (authentication.isAuthenticated()) {
-                return jwtService.generateToken(user.getUsername());
+                token = jwtService.generateToken(user.getId());
             } else {
-                return "Authentication Failed";
+                throw new AccessDeniedException("Authentication Failed");
             }
         } catch (Exception e) {
             System.out.println(e);
             System.out.println(e.getMessage());
-            return "Invalid Credentials";
+            throw new InternalError(e.getMessage());
         }
+        return new UserResponse(true, 200, "Login Success", token, user.getId());
     }
 
     public User verifyUsername(Long userId, String username) throws UserNotFoundException {
-        User user = findUserById(userId);
+        User user = getUserById(userId);
         if(user.getUsername().equals(username)){
             return user;
         }

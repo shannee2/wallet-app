@@ -29,16 +29,16 @@ public class CurrencySeeder {
     }
 
 
-    @Bean
-    public CommandLineRunner seedAdminUser(UserRepository userRepository, PasswordEncoder passwordEncoder) {
-        return args -> {
-            if (userRepository.findByUsername("admin").isEmpty()) {
-                User admin = new User("admin", passwordEncoder.encode("admin"));
-                userRepository.save(admin);
-                System.out.println("Admin user created: username=admin, password=admin");
-            }else{
-                System.out.println("Admin already exist in db");
-            }
-        };
-    }
+//    @Bean
+//    public CommandLineRunner seedAdminUser(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+//        return args -> {
+//            if (userRepository.findByUsername("admin").isEmpty()) {
+//                User admin = new User("admin", passwordEncoder.encode("admin"));
+//                userRepository.save(admin);
+//                System.out.println("Admin user created: username=admin, password=admin");
+//            }else{
+//                System.out.println("Admin already exist in db");
+//            }
+//        };
+//    }
 }

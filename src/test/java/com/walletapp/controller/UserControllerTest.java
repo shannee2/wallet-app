@@ -44,7 +44,7 @@ public class UserControllerTest {
     @Test
     public void testGetUser() throws Exception {
         User user = new User("testUser", "password123");
-        Mockito.when(userService.getUser("testUser")).thenReturn(user);
+        Mockito.when(userService.getUserByUsername("testUser")).thenReturn(user);
 
         mockMvc.perform(get("/users/testUser"))
                 .andExpect(status().isOk())
