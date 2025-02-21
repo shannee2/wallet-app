@@ -1,7 +1,7 @@
 package com.walletapp.repository;
 
-import com.walletapp.model.currency.Currency;
-import com.walletapp.model.currency.CurrencyType;
+import com.walletapp.model.money.Currency;
+import com.walletapp.model.money.CurrencyType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

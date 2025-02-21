@@ -1,0 +1,46 @@
+databaseChangeLog:
+  - changeSet:
+      id: 2
+      author: shannee
+      changes:
+        - insert:
+            tableName: currency
+            columns:
+              - column: { name: id, value: 1 }
+              - column: { name: type, value: USD }
+              - column: { name: conversion_factor, value: 1.0 }
+
+        - insert:
+            tableName: currency
+            columns:
+              - column: { name: id, value: 2 }
+              - column: { name: type, value: INR }
+              - column: { name: conversion_factor, value: 83.0 }
+
+        - insert:
+            tableName: currency
+            columns:
+              - column: { name: id, value: 3 }
+              - column: { name: type, value: EUR }
+              - column: { name: conversion_factor, value: 0.92 }
+
+        - insert:
+            tableName: currency
+            columns:
+              - column: { name: id, value: 4 }
+              - column: { name: type, value: GBP }
+              - column: { name: conversion_factor, value: 0.79 }
+
+  - changeSet:
+      id: 3
+      author: shannee
+      changes:
+        - insert:
+            tableName: users
+            columns:
+              - column:
+                  name: username
+                  value: admin
+              - column:
+                  name: password
+                  value: $2a$10$lNfZbIP6cFXgut5oQLWmwOuDf3Ac6aM09S5FtlUBbVFKwwUwJdAdC

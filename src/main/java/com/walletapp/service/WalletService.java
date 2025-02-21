@@ -1,14 +1,13 @@
 package com.walletapp.service;
 
 import com.walletapp.dto.transaction.TransactionRequest;
-import com.walletapp.exceptions.UserNotFoundException;
-import com.walletapp.exceptions.WalletNotFoundException;
+import com.walletapp.exceptions.users.UserNotFoundException;
+import com.walletapp.exceptions.wallets.WalletNotFoundException;
 import com.walletapp.model.user.User;
 import com.walletapp.model.user.UserPrincipal;
 import com.walletapp.model.wallet.Wallet;
-import com.walletapp.model.currency.Currency;
-import com.walletapp.model.currency.CurrencyType;
-import com.walletapp.model.currency.Value;
+import com.walletapp.model.money.Currency;
+import com.walletapp.model.money.Money;
 import com.walletapp.repository.CurrencyRepository;
 import com.walletapp.repository.UserRepository;
 import com.walletapp.repository.WalletRepository;
@@ -23,7 +22,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.nio.file.AccessDeniedException;
-import java.util.Objects;
 
 
 @Service
@@ -66,45 +64,36 @@ public class WalletService implements UserDetailsService {
         return new UserPrincipal(user);
     }
 
-//    private User findUserByUsername(String username) throws UserNotFoundException {
-//        return userRepository.findByUsername(username)
-//                .orElseThrow(UserNotFoundException::new);
-//    }
-//
-//    public Wallet findWalletByUserId(Long userId){
-//        return walletRepository.findByUserId(userId)
-//                .orElseThrow(WalletNotFoundException::new);
-//    }
-
     public Wallet findWalletById(Long walletId){
         return walletRepository.findById(walletId)
                 .orElseThrow(WalletNotFoundException::new);
     }
 
-    public Wallet depositMoneyToWallet(TransactionRequest transactionRequest, Long walletId) throws UserNotFoundException, AccessDeniedException {
+    public Wallet depositMoney(TransactionRequest transactionRequest, Long walletId) throws UserNotFoundException, AccessDeniedException {
         Wallet wallet = findWalletById(walletId);
+        return depositMoney(transactionRequest, wallet.getUser().getId(), walletId);
+    }
+
+    public Wallet depositMoney(TransactionRequest transactionRequest, Long userId, Long walletId) throws UserNotFoundException, AccessDeniedException {
+        Wallet wallet = verifyUserWallet(userId, walletId);
         Currency currency = currencyService.getCurrency(transactionRequest.getCurrency());
 
-        Value value = new Value(transactionRequest.getAmount(), currency);
-        wallet.depositMoney(value);
+        Money money = new Money(transactionRequest.getAmount(), currency);
+        wallet.deposit(money);
         return walletRepository.save(wallet);
     }
 
-    public Wallet withdrawMoneyFromWallet(TransactionRequest transactionRequest, Long walletId) throws UserNotFoundException, AccessDeniedException {
-        Wallet wallet = findWalletById(walletId);
-
+    public Wallet withdrawMoney(TransactionRequest transactionRequest, Long userId, Long walletId) throws UserNotFoundException, AccessDeniedException {
+        Wallet wallet = verifyUserWallet(userId, walletId);
         Currency currency = currencyService.getCurrency(transactionRequest.getCurrency());
 
-        Value value = new Value(transactionRequest.getAmount(), currency);
-        wallet.withdrawMoney(value);
+        Money money = new Money(transactionRequest.getAmount(), currency);
+        wallet.withdraw(money);
         return walletRepository.save(wallet);
     }
 
-//    public Wallet verifyUserWallet(Long userId, Long walletId) {
-//        Wallet wallet = findWalletById(walletId);
-//        if(Objects.equals(wallet.getUser().getId(), userId)){
-//            return wallet;
-//        }
-//        return null;
-//    }
+    public Wallet verifyUserWallet(Long userId, Long walletId) throws AccessDeniedException {
+        return walletRepository.findByIdAndUserId(walletId, userId)
+                .orElseThrow(() -> new AccessDeniedException("Wallet does not belong to the user"));
+    }
 }

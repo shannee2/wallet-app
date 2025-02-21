@@ -1,21 +1,21 @@
-package com.walletapp.model.currency;
+package com.walletapp.model.money;
 
 import jakarta.persistence.*;
 
 
 @Embeddable
-public class Value {
+public class Money {
     private double amount;
 
     @ManyToOne(optional = false)
     private Currency currency;
 
-    public Value(double amount, Currency currency) {
+    public Money(double amount, Currency currency) {
         this.amount = amount;
         this.currency = currency;
     }
 
-    public Value() {
+    public Money() {
     }
 
     public double getAmount() {

@@ -38,7 +38,7 @@ public class UserControllerTest {
         mockMvc.perform(post("/users")
                         .contentType(APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(user)))
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated());
     }
 
     @Test

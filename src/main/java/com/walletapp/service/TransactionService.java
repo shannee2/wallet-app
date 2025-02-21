@@ -1,12 +1,12 @@
 package com.walletapp.service;
 
-import com.walletapp.dto.transaction.TransactionWalletDTO;
 import com.walletapp.dto.transaction.TransactionRequest;
 import com.walletapp.dto.transaction.TransactionResponse;
-import com.walletapp.exceptions.UserNotFoundException;
-import com.walletapp.exceptions.WalletNotFoundException;
+import com.walletapp.exceptions.users.UserNotFoundException;
+import com.walletapp.exceptions.wallets.WalletNotFoundException;
 import com.walletapp.model.transaction.*;
-import com.walletapp.registry.WalletHandlerRegistry;
+import com.walletapp.model.wallet.Wallet;
+import com.walletapp.handler.WalletHandlerRegistry;
 import com.walletapp.repository.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +22,7 @@ public class TransactionService {
     private TransactionRepository transactionRepository;
 
     @Autowired
-    private TransactionWalletRepository transactionWalletRepository;
+    private TransactionRecipientRepository transactionRecipientRepository;
 
     @Autowired
     private UserService userService;
@@ -49,33 +49,32 @@ public class TransactionService {
         Transaction transaction = new Transaction(
                 request.getType(),
                 request.getAmount(),
-                currencyService.getCurrency(request.getCurrency())
+                currencyService.getCurrency(request.getCurrency()),
+                walletService.verifyUserWallet(userId, walletId)
         );
 
-        List<TransactionWallet> transactionWallets = walletHandlerRegistry
+        walletHandlerRegistry
                 .getHandler(request.getType())
-                .handle(request, walletId, transaction);
+                .handle(request, userId, walletId, transaction);
 
         transactionRepository.save(transaction);
-        transactionWalletRepository.saveAll(transactionWallets);
 
-        return mapToResponse(transaction, transactionWallets);
+        TransactionRecipient recipient = null;
+
+        if(request.getTransactionType() == TransactionType.TRANSFER){
+            Wallet recipientWallet = walletService.findWalletById(request.getReceiverWalletId());
+            recipient = new TransactionRecipient(transaction, recipientWallet);
+            transactionRecipientRepository.save(recipient);
+        }
+
+        return new TransactionResponse(transaction, recipient);
     }
 
     public List<TransactionResponse> getTransactions(Long userId, Long walletId) throws UserNotFoundException {
-        List<Transaction> transactions = transactionRepository.findWalletTransactions(userId);
+        List<Transaction> transactions = transactionRepository.findByWalletId(walletId);
 
         return transactions.stream()
-                .map(transaction -> mapToResponse(transaction, transaction.getTransactionRoles()))
+                .map(transaction -> new TransactionResponse(transaction, transaction.getRecipient())) // Updated mapping
                 .toList();
     }
-
-
-    private TransactionResponse mapToResponse(Transaction transaction, List<TransactionWallet> participants) {
-        List<TransactionWalletDTO> participantResponses = participants.stream()
-                .map(p -> new TransactionWalletDTO(p.getWallet().getId(), p.getTransactionWalletType()))
-                .toList();
-        return new TransactionResponse(transaction, participantResponses);
-    }
-
 }

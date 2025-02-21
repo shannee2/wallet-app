@@ -1,4 +1,4 @@
-package com.walletapp.model.currency;
+package com.walletapp.model.money;
 
 import jakarta.persistence.*;
 

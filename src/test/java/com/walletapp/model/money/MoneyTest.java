@@ -1,10 +1,10 @@
-package com.walletapp.model.currency;
+package com.walletapp.model.money;
 
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class ValueTest {
+public class MoneyTest {
 
     private Currency usd;
     private Currency eur;
@@ -21,21 +21,21 @@ public class ValueTest {
 
     @Test
     public void testConstructor() {
-        Value value = new Value(100.0, usd);
-        assertEquals(100.0, value.getAmount());
-        assertEquals(usd, value.getCurrency());
+        Money money = new Money(100.0, usd);
+        assertEquals(100.0, money.getAmount());
+        assertEquals(usd, money.getCurrency());
     }
 
     @Test
     public void testGetAmount() {
-        Value value = new Value(200.0, eur);
-        assertEquals(200.0, value.getAmount());
+        Money money = new Money(200.0, eur);
+        assertEquals(200.0, money.getAmount());
     }
 
     @Test
     public void testGetCurrency() {
-        Value value = new Value(300.0, gbp);
-        assertEquals(gbp, value.getCurrency());
+        Money money = new Money(300.0, gbp);
+        assertEquals(gbp, money.getCurrency());
     }
 
 //    @Test

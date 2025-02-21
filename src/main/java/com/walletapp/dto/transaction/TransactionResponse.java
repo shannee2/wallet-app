@@ -1,51 +1,51 @@
 package com.walletapp.dto.transaction;
 
-import com.walletapp.model.currency.CurrencyType;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.walletapp.model.money.CurrencyType;
 import com.walletapp.model.transaction.Transaction;
 import com.walletapp.model.transaction.TransactionType;
+import com.walletapp.model.transaction.TransactionRecipient;
 
 import java.util.Date;
-import java.util.List;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class TransactionResponse {
     private final Long transactionId;
     private final CurrencyType currencyType;
     private final double amount;
     private final Date date;
     private final TransactionType transactionType;
-    private final List<TransactionWalletDTO> transactionWallets;
+    private final Long senderWalletId;
+    private final Long receiverWalletId;
+    private final Long walletId;
 
-    public TransactionResponse(Transaction transaction, List<TransactionWalletDTO> transactionWallets) {
-        System.out.println(transactionWallets);
+    public TransactionResponse(Transaction transaction, TransactionRecipient recipient) {
         this.transactionId = transaction.getId();
-        this.currencyType = transaction.getCurrency().getType();
+        this.currencyType = transaction.getCurrency() != null ? transaction.getCurrency().getType() : null;
         this.amount = transaction.getAmount();
         this.date = transaction.getDate();
         this.transactionType = transaction.getType();
-        this.transactionWallets = transactionWallets;
+
+
+        // Assigning wallet IDs based on transaction type
+        if (transaction.getType() == TransactionType.TRANSFER) {
+            this.senderWalletId = transaction.getWallet().getId();
+            this.receiverWalletId = recipient.getWallet().getId();
+            this.walletId = null;
+        } else { // DEPOSIT or WITHDRAWAL
+            this.walletId = transaction.getWallet().getId();
+            this.senderWalletId = null;
+            this.receiverWalletId = null;
+        }
     }
 
-    public Long getTransactionId() {
-        return transactionId;
-    }
-
-    public CurrencyType getCurrencyType() {
-        return currencyType;
-    }
-
-    public double getAmount() {
-        return amount;
-    }
-
-    public Date getDate() {
-        return date;
-    }
-
-    public TransactionType getTransactionType() {
-        return transactionType;
-    }
-
-    public List<TransactionWalletDTO> getTransactionWallets() {
-        return transactionWallets;
-    }
+    // Getters
+    public Long getTransactionId() { return transactionId; }
+    public CurrencyType getCurrencyType() { return currencyType; }
+    public double getAmount() { return amount; }
+    public Date getDate() { return date; }
+    public TransactionType getTransactionType() { return transactionType; }
+    public Long getSenderWalletId() { return senderWalletId; }
+    public Long getReceiverWalletId() { return receiverWalletId; }
+    public Long getWalletId() { return walletId; }
 }

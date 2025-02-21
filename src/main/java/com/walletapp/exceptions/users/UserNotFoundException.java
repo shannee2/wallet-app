@@ -1,4 +1,4 @@
-package com.walletapp.exceptions;
+package com.walletapp.exceptions.users;
 
 import org.springframework.data.crossstore.ChangeSetPersister;
 

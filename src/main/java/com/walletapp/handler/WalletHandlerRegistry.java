@@ -1,6 +1,5 @@
-package com.walletapp.registry;
+package com.walletapp.handler;
 
-import com.walletapp.handler.WalletHandler;
 import com.walletapp.model.transaction.TransactionType;
 import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
@@ -19,7 +18,7 @@ public class WalletHandlerRegistry {
     }
 
     @PostConstruct
-    private void init() {
+    public void init() {
         for (WalletHandler handler : handlerList) {
             handlers.put(handler.getType(), handler);
         }

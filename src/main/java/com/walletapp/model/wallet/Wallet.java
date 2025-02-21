@@ -1,10 +1,10 @@
 package com.walletapp.model.wallet;
 
-import com.walletapp.exceptions.InsufficientBalanceException;
-import com.walletapp.exceptions.InvalidAmountException;
-import com.walletapp.model.currency.Currency;
-import com.walletapp.model.currency.CurrencyType;
-import com.walletapp.model.currency.Value;
+import com.walletapp.exceptions.wallets.InsufficientBalanceException;
+import com.walletapp.exceptions.wallets.InvalidAmountException;
+import com.walletapp.model.money.Currency;
+import com.walletapp.model.money.CurrencyType;
+import com.walletapp.model.money.Money;
 import com.walletapp.model.user.User;
 import jakarta.persistence.*;
 
@@ -16,7 +16,7 @@ public class Wallet {
     private Long id;
 
     @Embedded
-    private Value balance;
+    private Money money;
 
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false, unique = true)
@@ -28,48 +28,62 @@ public class Wallet {
 
     public Wallet(User user) {
         Currency defaultCurrency = new Currency(CurrencyType.INR, 1.0);
-        this.balance = new Value(0.0, defaultCurrency);
+        this.money = new Money(0.0, defaultCurrency);
         this.user = user;
     }
 
     public Wallet(Currency currency, User user) {
         this.currency = currency;
-        this.balance = new Value(0.0, currency);
+        this.money = new Money(0.0, currency);
         this.user = user;
+    }
+
+    public Wallet(Long id, Currency currency, User user) {
+        this.currency = currency;
+        this.money = new Money(0.0, currency);
+        this.user = user;
+        this.id = id;
     }
 
     public Wallet() {
 
     }
+    public Wallet(Long id) {
+        this.id = id;
+    }
 
-    public Wallet(Value balance) {
-        this.balance = balance;
+    public Wallet(Money money) {
+        this.money = money;
     }
 
 
-    public void depositMoney(Value value) {
-        if(value.getAmount() <= 0){
+    public void deposit(Money money) {
+        if(money.getAmount() <= 0){
             throw new InvalidAmountException();
         }
 
-        double newAmount = this.balance.getAmount() + value.getAmount();
-        this.balance = new Value(newAmount , this.balance.getCurrency());
+        double newAmount = this.money.getAmount() + money.getAmount();
+        this.money = new Money(newAmount , this.money.getCurrency());
     }
 
-    public void withdrawMoney(Value value) {
-        if(value.getAmount() > this.balance.getAmount()){
+    public void withdraw(Money money) {
+        if(money.getAmount() > this.money.getAmount()){
             throw new InsufficientBalanceException();
         }
-        if(value.getAmount() <= 0){
+        if(money.getAmount() <= 0){
             throw new InvalidAmountException();
         }
 
-        double newAmount = this.balance.getAmount() - value.getAmount();
-        this.balance = new Value(newAmount , this.balance.getCurrency());
+        double newAmount = this.money.getAmount() - money.getAmount();
+        this.money = new Money(newAmount , this.money.getCurrency());
     }
 
-    public Value getBalance() {
-        return this.balance;
+    public Money getMoney() {
+        return this.money;
+    }
+
+    public void setMoney(Money money) {
+        this.money = money;
     }
 
     public Long getId() {

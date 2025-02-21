@@ -2,13 +2,13 @@ package com.walletapp.service;
 
 import com.walletapp.dto.user.UserRequest;
 import com.walletapp.dto.user.UserResponse;
-import com.walletapp.exceptions.UserNotFoundException;
-import com.walletapp.exceptions.WalletNotFoundException;
+import com.walletapp.exceptions.users.UserNotFoundException;
+import com.walletapp.exceptions.wallets.WalletNotFoundException;
 import com.walletapp.model.user.User;
 import com.walletapp.model.user.UserPrincipal;
 import com.walletapp.model.wallet.Wallet;
-import com.walletapp.model.currency.Currency;
-import com.walletapp.model.currency.CurrencyType;
+import com.walletapp.model.money.Currency;
+import com.walletapp.model.money.CurrencyType;
 import com.walletapp.repository.CurrencyRepository;
 import com.walletapp.repository.UserRepository;
 import com.walletapp.repository.WalletRepository;
@@ -93,7 +93,6 @@ public class UserService implements UserDetailsService {
         return userRepository.findAll();
     }
 
-
     public User getUserById(Long id) throws UserNotFoundException {
         return userRepository.findById(id)
                 .orElseThrow(UserNotFoundException::new);
@@ -105,8 +104,8 @@ public class UserService implements UserDetailsService {
     }
 
     public UserResponse verify(UserRequest userRequest) {
-        String token = null;
-        User user = null;
+        String token;
+        User user;
         try {
             Authentication authentication = authManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
@@ -123,16 +122,8 @@ public class UserService implements UserDetailsService {
         } catch (Exception e) {
             System.out.println(e);
             System.out.println(e.getMessage());
-            throw new InternalError(e.getMessage());
+            throw new WalletNotFoundException();
         }
         return new UserResponse(true, 200, "Login Success", token, user.getId());
-    }
-
-    public User verifyUsername(Long userId, String username) throws UserNotFoundException {
-        User user = getUserById(userId);
-        if(user.getUsername().equals(username)){
-            return user;
-        }
-        return null;
     }
 }

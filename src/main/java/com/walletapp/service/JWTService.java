@@ -15,17 +15,16 @@ import java.util.function.Function;
 
 @Service
 public class JWTService {
-    private final String secretKey;
-    public JWTService(){
-        try {
-            KeyGenerator keyGen = KeyGenerator.getInstance("HmacSHA256");
-            SecretKey sk = keyGen.generateKey();
-            this.secretKey = Base64.getEncoder().encodeToString(sk.getEncoded());
-            System.out.println("Ye banai mene secretkey: "+secretKey);
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
-    }
+    private final String secretKey = "JSLDFKAHGFLJASHRGJKASRBNKJANSFLVJHASVBAJIBHVFIFIVBAFIDVBJAIDSBFBDFHHSDBFVHBS";
+//    public JWTService(){
+//        try {
+//            KeyGenerator keyGen = KeyGenerator.getInstance("HmacSHA256");
+//            SecretKey sk = keyGen.generateKey();
+//            this.secretKey = Base64.getEncoder().encodeToString(sk.getEncoded());
+//        } catch (NoSuchAlgorithmException e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
     public String generateToken(Long userId) {
         Map<String, Object> claims = new HashMap<>();
         System.out.println("Generating with userId: "+userId);
@@ -34,7 +33,7 @@ public class JWTService {
                 .add(claims)
                 .subject(String.valueOf(userId))
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + 60 * 60 * 60))
+                .expiration(new Date(System.currentTimeMillis() + 60 * 60 * 1000))
                 .and()
                 .signWith(getKey())
                 .compact();

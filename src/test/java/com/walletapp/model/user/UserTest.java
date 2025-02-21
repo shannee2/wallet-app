@@ -1,7 +1,6 @@
-package com.walletapp.model;
-import com.walletapp.model.currency.Currency;
-import com.walletapp.model.currency.CurrencyType;
-import com.walletapp.model.user.User;
+package com.walletapp.model.user;
+import com.walletapp.model.money.Currency;
+import com.walletapp.model.money.CurrencyType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

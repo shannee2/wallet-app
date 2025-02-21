@@ -6,7 +6,7 @@ public class TransactionRequest {
     private double amount;
     private String currency;
     private TransactionType transactionType;
-    private TransactionWalletDTO transactionWallet;
+    private Long receiverWalletId;
 
     public TransactionRequest() {}
 
@@ -14,14 +14,14 @@ public class TransactionRequest {
         this.amount = amount;
         this.currency = currency;
         this.transactionType = transactionType;
-        this.transactionWallet = null;
+        this.receiverWalletId = null;
     }
 
-    public TransactionRequest(double amount, String currency, TransactionType transactionType, TransactionWalletDTO transactionWallet) {
+    public TransactionRequest(double amount, String currency, TransactionType transactionType, Long receiverWalletId) {
         this.amount = amount;
         this.currency = currency;
         this.transactionType = transactionType;
-        this.transactionWallet = transactionWallet;
+        this.receiverWalletId = receiverWalletId;
     }
 
     public double getAmount() {
@@ -36,20 +36,11 @@ public class TransactionRequest {
         return this.transactionType;
     }
 
-    @Override
-    public String toString() {
-        return "TransactionRequest{" +
-                ", amount=" + amount +
-                ", currency='" + currency + '\'' +
-                ", transactionType=" + transactionType +
-                '}';
-    }
-
     public TransactionType getTransactionType() {
         return transactionType;
     }
 
-    public TransactionWalletDTO getTransactionWallet() {
-        return transactionWallet;
+    public Long getReceiverWalletId() {
+        return receiverWalletId;
     }
 }

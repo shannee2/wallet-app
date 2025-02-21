@@ -2,7 +2,7 @@ package com.walletapp.controller;
 
 import com.walletapp.dto.user.UserResponse;
 import com.walletapp.dto.user.UserRequest;
-import com.walletapp.exceptions.UserNotFoundException;
+import com.walletapp.exceptions.users.UserNotFoundException;
 import com.walletapp.model.user.User;
 import com.walletapp.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 
 @RestController
@@ -31,7 +32,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> loginUser(@RequestBody UserRequest userRequest) {
+    public ResponseEntity<?> loginUser(@RequestBody UserRequest userRequest) throws UserNotFoundException, AccessDeniedException {
         UserResponse response = userService.verify(userRequest);
         return ResponseEntity.ok(response);
     }
