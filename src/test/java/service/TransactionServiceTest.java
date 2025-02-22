@@ -116,15 +116,12 @@ class TransactionServiceTest {
         TransactionRecipient recipient = new TransactionRecipient(transaction, recipientWallet);
 
         when(currencyService.getCurrency("USD")).thenReturn(null);
-        when(walletService.findWalletById(RECEIVER_WALLET_ID)).thenReturn(recipientWallet);
         when(transactionRepository.save(any(Transaction.class))).thenReturn(transaction);
-        when(transactionRecipientRepository.save(any(TransactionRecipient.class))).thenReturn(recipient);
+        when(walletHandler.handle(any(), any(), any(), any())).thenReturn(recipient);
 
         TransactionResponse response = transactionService.createTransaction(request, USER_ID, WALLET_ID);
-
         assertThat(response).isNotNull();
         assertThat(response.getTransactionType()).isEqualTo(TransactionType.TRANSFER);
-        verify(transactionRecipientRepository).save(any(TransactionRecipient.class));
     }
 
 

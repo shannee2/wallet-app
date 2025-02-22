@@ -12,7 +12,9 @@ import com.walletapp.model.wallet.Wallet;
 import com.walletapp.service.TransactionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -31,6 +33,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @AutoConfigureMockMvc(addFilters = false)
 @SpringBootTest
+//@ExtendWith(MockitoExtension.class)
+
 class TransactionControllerTest {
 
     @Autowired
@@ -54,15 +58,12 @@ class TransactionControllerTest {
         Wallet senderWallet = new Wallet(1L);
         Wallet receiverWallet = new Wallet(2L);
 
-        // Mock Transactions
         Transaction depositTransaction = new Transaction(1L, TransactionType.DEPOSIT, 100.0, currency, senderWallet);
         Transaction withdrawTransaction = new Transaction(2L, TransactionType.WITHDRAW, 50.0, currency, senderWallet);
         Transaction transferTransaction = new Transaction(3L, TransactionType.TRANSFER, 25.0, currency, senderWallet);
 
-        // Transfer Recipient
         TransactionRecipient recipient = new TransactionRecipient(transferTransaction, receiverWallet);
 
-        // Transaction Responses
         depositResponse = new TransactionResponse(depositTransaction, null);
         withdrawResponse = new TransactionResponse(withdrawTransaction, null);
         transferResponse = new TransactionResponse(transferTransaction, recipient);

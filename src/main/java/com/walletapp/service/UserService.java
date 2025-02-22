@@ -4,12 +4,11 @@ import com.walletapp.dto.user.UserRequest;
 import com.walletapp.dto.user.UserResponse;
 import com.walletapp.exceptions.users.UserNotFoundException;
 import com.walletapp.exceptions.wallets.WalletNotFoundException;
+import com.walletapp.model.money.CurrencyType;
 import com.walletapp.model.user.User;
 import com.walletapp.model.user.UserPrincipal;
 import com.walletapp.model.wallet.Wallet;
 import com.walletapp.model.money.Currency;
-import com.walletapp.model.money.CurrencyType;
-import com.walletapp.repository.CurrencyRepository;
 import com.walletapp.repository.UserRepository;
 import com.walletapp.repository.WalletRepository;
 import jakarta.transaction.Transactional;
@@ -36,26 +35,30 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
-    private final CurrencyRepository currencyRepository;
+    private final CurrencyService currencyService;
     private final WalletRepository walletRepository;
     private final AuthenticationManager authManager;
     private final PasswordEncoder passwordEncoder;
     private final JWTService jwtService;
+    private final WalletService walletService;
+
 
     @Autowired
     public UserService(
             UserRepository userRepository,
-            CurrencyRepository currencyRepository,
+            CurrencyService currencyService,
             WalletRepository walletRepository,
             @Lazy AuthenticationManager authManager,
             PasswordEncoder encoder,
-            JWTService jwtService) {
+            JWTService jwtService,
+            WalletService walletService) {
         this.userRepository = userRepository;
-        this.currencyRepository = currencyRepository;
+        this.currencyService = currencyService;
         this.walletRepository = walletRepository;
         this.authManager = authManager;
         this.passwordEncoder = encoder;
         this.jwtService = jwtService;
+        this.walletService = walletService;
     }
 
 
@@ -67,21 +70,24 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public UserResponse registerUser(User user) {
-        Currency currency = currencyRepository.findByType(CurrencyType.INR)
-                .orElseThrow(() -> new IllegalArgumentException("Currency not found"));
+    public UserResponse registerUser(UserRequest userRequest) {
+        User user = new User(userRequest.getUsername(), passwordEncoder.encode(userRequest.getPassword()));
+        try{
+            if (getUserByUsername(user.getUsername()) != null) {
+                ResponseEntity.badRequest().body("Username already taken");
+                return null;
+            }
+        }catch (UserNotFoundException _){}
 
-        if (userRepository.findByUsername(user.getUsername()).isPresent()) {
-            ResponseEntity.badRequest().body("Username already taken");
-            return null;
-        }
 
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        Wallet wallet = new Wallet(currency, user);
+//        user.setPassword(passwordEncoder.encode(user.getPassword()));
+
         userRepository.save(user);
-        walletRepository.save(wallet);
+
+//        Currency currency = currencyService.getCurrency(userRequest.getCurrency());
+        Wallet wallet = walletService.createWallet(user, userRequest.getCurrency());
         String token = jwtService.generateToken(user.getId());
-        return new UserResponse(true, 201, "User Registered Successfully", token, user.getId());
+        return new UserResponse(true, 201, "User Registered Successfully", token, user.getId(), wallet.getId());
     }
 
     public User getUserByUsername(String username) throws UserNotFoundException {

@@ -13,8 +13,7 @@ public class CurrencyService {
     private CurrencyRepository currencyRepository;
 
     public Currency getCurrency(String currencyType){
-        return currencyRepository.findByType(CurrencyType.valueOf(currencyType))
-                .orElseThrow(() -> new IllegalArgumentException("Currency not found"));
+        return getCurrency(CurrencyType.valueOf(currencyType));
     }
 
     public Currency getCurrency(CurrencyType currencyType){

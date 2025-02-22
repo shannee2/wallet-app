@@ -5,6 +5,7 @@ import com.walletapp.exceptions.users.UserNotFoundException;
 import com.walletapp.handler.*;
 import com.walletapp.model.transaction.Transaction;
 import com.walletapp.model.transaction.TransactionType;
+import com.walletapp.repository.TransactionRecipientRepository;
 import com.walletapp.service.WalletService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,6 +31,9 @@ class HandlerTest {
 
     @InjectMocks
     private TransferWalletHandler transferWalletHandler;
+
+    @Mock
+    private TransactionRecipientRepository transactionRecipientRepository;
 
     @BeforeEach
     void setUp() {
@@ -71,7 +75,7 @@ class HandlerTest {
         Long receiverWalletId = 200L;
 
         when(request.getReceiverWalletId()).thenReturn(receiverWalletId);
-
+        when(transactionRecipientRepository.save(any())).thenReturn(null);
         transferWalletHandler.handle(request, userId, senderWalletId, transaction);
 
         verify(walletService).withdrawMoney(request, userId, senderWalletId);

@@ -1,19 +1,19 @@
 package com.walletapp.dto.user;
 
 public class UserRequest {
-//    private Long userId;
     private String username;
     private String password;
-//
-//    public UserDTO(Long userId, String username, String password) {
-//        this.userId = userId;
-//        this.username = username;
-//        this.password = password;
-//    }
+    private String currency;
 
     public UserRequest(String username, String password) {
         this.username = username;
         this.password = password;
+    }
+
+    public UserRequest(String username, String password, String currency) {
+        this.username = username;
+        this.password = password;
+        this.currency = currency;
     }
 
     public UserRequest(){}
@@ -25,22 +25,8 @@ public class UserRequest {
     public String getPassword() {
         return password;
     }
-//
-//    public Long getUserId() {
 
-//        return userId;
-//    }
-//    public void setUserId(Long userId) {
-//        this.userId = userId;
-//    }
-//
-//
-//    public void setUsername(String username) {
-//        this.username = username;
-//    }
-//
-//
-//    public void setPassword(String password) {
-//        this.password = password;
-//    }
+    public String getCurrency() {
+        return currency;
+    }
 }

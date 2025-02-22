@@ -29,7 +29,7 @@ import java.nio.file.AccessDeniedException;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -64,6 +64,19 @@ class WalletServiceTest {
         user = new User(1L,"testUser","password123");
         currency = new Currency(CurrencyType.INR, 1.0);
         wallet = new Wallet(1L, currency, user);
+    }
+
+    @Test
+    void testCreateWallet_Success() {
+        when(walletRepository.save(any(Wallet.class))).thenReturn(wallet);
+
+        Wallet createdWallet = walletService.createWallet(user, currency);
+
+        assertNotNull(createdWallet);
+        assertEquals(user, createdWallet.getUser());
+        assertEquals(currency, createdWallet.getMoney().getCurrency());
+
+        verify(walletRepository, times(1)).save(any(Wallet.class));
     }
 
     @Test

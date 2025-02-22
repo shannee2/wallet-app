@@ -1,5 +1,6 @@
 package com.walletapp.model.money;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -38,35 +39,72 @@ public class MoneyTest {
         assertEquals(gbp, money.getCurrency());
     }
 
-//    @Test
-//    public void testConvertToInr() {
-//        Value value = new Value(1.0, usd);
-//        Value convertedValue = value.convertTo(inr);
-//        assertEquals(86.0, convertedValue.getAmount(), 0.01);
-//        assertEquals(inr, convertedValue.getCurrency());
-//    }
-//
-//    @Test
-//    public void testConvertToUsd() {
-//        Value value = new Value(85.0, eur);
-//        Value convertedValue = value.convertTo(usd);
-//        assertEquals(100.0, convertedValue.getAmount(), 0.01);
-//        assertEquals(usd, convertedValue.getCurrency());
-//    }
-//
-//    @Test
-//    public void testConvertToGbp() {
-//        Value value = new Value(100.0, usd);
-//        Value convertedValue = value.convertTo(gbp);
-//        assertEquals(75.0, convertedValue.getAmount(), 0.01);
-//        assertEquals(gbp, convertedValue.getCurrency());
-//    }
-//
-//    @Test
-//    public void testConvertFromInrToEur() {
-//        Value value = new Value(74.0, inr);
-//        Value convertedValue = value.convertTo(eur);
-//        assertEquals(0.73, convertedValue.getAmount(), 0.01);
-//        assertEquals(eur, convertedValue.getCurrency());
-//    }
+    @Test
+    void testConvertTo_SameCurrency_ReturnsSameMoney() {
+        Currency usd = new Currency(CurrencyType.USD, 1.0);
+        Money money = new Money(100, usd);
+
+        Money convertedMoney = money.convertTo(usd);
+
+        assertThat(convertedMoney).isSameAs(money);
+    }
+
+    @Test
+    void testConvertTo_UsdToInr_CorrectConversion() {
+        Currency usd = new Currency(CurrencyType.USD, 1.0);
+        Currency inr = new Currency(CurrencyType.INR, 83.0);
+        Money money = new Money(100, usd);
+
+        Money convertedMoney = money.convertTo(inr);
+
+        assertThat(convertedMoney.getAmount()).isEqualTo(8300.0);
+        assertThat(convertedMoney.getCurrency()).isEqualTo(inr);
+    }
+
+    @Test
+    void testConvertTo_InrToUsd_CorrectConversion() {
+        Currency usd = new Currency(CurrencyType.USD, 1.0);
+        Currency inr = new Currency(CurrencyType.INR, 83.0);
+        Money money = new Money(8300, inr);
+
+        Money convertedMoney = money.convertTo(usd);
+
+        assertThat(convertedMoney.getAmount()).isEqualTo(100.0);
+        assertThat(convertedMoney.getCurrency()).isEqualTo(usd);
+    }
+
+    @Test
+    void testConvertTo_EurToGbp_CorrectConversion() {
+        Currency eur = new Currency(CurrencyType.EUR, 0.85);
+        Currency gbp = new Currency(CurrencyType.GBP, 0.75);
+        Money money = new Money(85, eur);
+
+        Money convertedMoney = money.convertTo(gbp);
+
+        assertThat(convertedMoney.getAmount()).isEqualTo(75.0);
+        assertThat(convertedMoney.getCurrency()).isEqualTo(gbp);
+    }
+
+    @Test
+    void testConvertTo_ZeroAmount_RemainsZero() {
+        Currency usd = new Currency(CurrencyType.USD, 1.0);
+        Currency inr = new Currency(CurrencyType.INR, 83.0);
+        Money money = new Money(0, usd);
+
+        Money convertedMoney = money.convertTo(inr);
+
+        assertThat(convertedMoney.getAmount()).isEqualTo(0.0);
+        assertThat(convertedMoney.getCurrency()).isEqualTo(inr);
+    }
+
+    @Test
+    void testConvertTo_SmallAmounts_PrecisionHandling() {
+        Currency usd = new Currency(CurrencyType.USD, 1.0);
+        Currency inr = new Currency(CurrencyType.INR, 83.0);
+        Money money = new Money(1, usd);
+
+        Money convertedMoney = money.convertTo(inr);
+
+        assertThat(convertedMoney.getAmount()).isEqualTo(83.0);
+    }
 }

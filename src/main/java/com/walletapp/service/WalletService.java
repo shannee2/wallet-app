@@ -3,6 +3,7 @@ package com.walletapp.service;
 import com.walletapp.dto.transaction.TransactionRequest;
 import com.walletapp.exceptions.users.UserNotFoundException;
 import com.walletapp.exceptions.wallets.WalletNotFoundException;
+import com.walletapp.model.money.CurrencyType;
 import com.walletapp.model.user.User;
 import com.walletapp.model.user.UserPrincipal;
 import com.walletapp.model.wallet.Wallet;
@@ -34,7 +35,6 @@ public class WalletService implements UserDetailsService {
     private final PasswordEncoder passwordEncoder;
     private final JWTService jwtService;
     private final CurrencyService currencyService;
-    private final UserService userService;
 
     @Autowired
     public WalletService(
@@ -44,8 +44,7 @@ public class WalletService implements UserDetailsService {
             @Lazy AuthenticationManager authManager,
             PasswordEncoder encoder,
             CurrencyService currencyService,
-            JWTService jwtService,
-            UserService userService) {
+            JWTService jwtService) {
         this.userRepository = userRepository;
         this.currencyRepository = currencyRepository;
         this.walletRepository = walletRepository;
@@ -53,7 +52,6 @@ public class WalletService implements UserDetailsService {
         this.passwordEncoder = encoder;
         this.jwtService = jwtService;
         this.currencyService = currencyService;
-        this.userService = userService;
     }
 
 
@@ -67,6 +65,18 @@ public class WalletService implements UserDetailsService {
     public Wallet findWalletById(Long walletId){
         return walletRepository.findById(walletId)
                 .orElseThrow(WalletNotFoundException::new);
+    }
+
+    public Wallet createWallet(User user, String currency){
+        if(currency == null){
+            return createWallet(user, currencyService.getCurrency(CurrencyType.INR));
+        }
+        return createWallet(user, currencyService.getCurrency(currency));
+    }
+
+    public Wallet createWallet(User user, Currency currency){
+        Wallet wallet = new Wallet(currency, user);
+        return walletRepository.save(wallet);
     }
 
     public Wallet depositMoney(TransactionRequest transactionRequest, Long walletId) throws UserNotFoundException, AccessDeniedException {

@@ -6,13 +6,17 @@ import com.walletapp.model.money.CurrencyType;
 import com.walletapp.model.money.Money;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 public class WalletTest {
     private Currency usd;
     private Currency eur;
     private Currency gbp;
+    @InjectMocks
     private Currency inr;
 
     @BeforeEach
@@ -21,6 +25,7 @@ public class WalletTest {
         eur = new Currency(CurrencyType.EUR, 1);
         gbp = new Currency(CurrencyType.GBP, 1);
         inr = new Currency(CurrencyType.INR, 1);
+//        when(inr.getConversionFactor()).thenReturn(1.0);
     }
 
     @Test

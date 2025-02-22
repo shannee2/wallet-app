@@ -54,6 +54,7 @@ public class Wallet {
 
     public Wallet(Money money) {
         this.money = money;
+        this.currency = money.getCurrency();
     }
 
 
@@ -61,8 +62,8 @@ public class Wallet {
         if(money.getAmount() <= 0){
             throw new InvalidAmountException();
         }
-
-        double newAmount = this.money.getAmount() + money.getAmount();
+        Money convertedMoney = money.convertTo(this.currency);
+        double newAmount = this.money.getAmount() + convertedMoney.getAmount();
         this.money = new Money(newAmount , this.money.getCurrency());
     }
 
@@ -70,11 +71,12 @@ public class Wallet {
         if(money.getAmount() > this.money.getAmount()){
             throw new InsufficientBalanceException();
         }
+        Money convertedMoney = money.convertTo(this.currency);
         if(money.getAmount() <= 0){
             throw new InvalidAmountException();
         }
 
-        double newAmount = this.money.getAmount() - money.getAmount();
+        double newAmount = this.money.getAmount() - convertedMoney.getAmount();
         this.money = new Money(newAmount , this.money.getCurrency());
     }
 

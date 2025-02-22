@@ -6,6 +6,7 @@ public class UserResponse {
     private final String message;
     private final String token;
     private final Long userId;
+    private final Long walletId;
 
     public UserResponse(boolean success, int status, String message, String token, Long userId) {
         this.success = success;
@@ -13,6 +14,15 @@ public class UserResponse {
         this.message = message;
         this.token = token;
         this.userId = userId;
+        this.walletId = null;
+    }
+    public UserResponse(boolean success, int status, String message, String token, Long userId, Long walletId) {
+        this.success = success;
+        this.status = status;
+        this.message = message;
+        this.token = token;
+        this.userId = userId;
+        this.walletId = walletId;
     }
 
     public int getStatus() {
@@ -33,5 +43,9 @@ public class UserResponse {
 
     public Long getUserId() {
         return userId;
+    }
+
+    public Long getWalletId() {
+        return walletId;
     }
 }

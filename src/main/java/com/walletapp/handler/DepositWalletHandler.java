@@ -3,6 +3,7 @@ package com.walletapp.handler;
 import com.walletapp.dto.transaction.TransactionRequest;
 import com.walletapp.exceptions.users.UserNotFoundException;
 import com.walletapp.model.transaction.Transaction;
+import com.walletapp.model.transaction.TransactionRecipient;
 import com.walletapp.model.transaction.TransactionType;
 import com.walletapp.service.WalletService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,8 +22,9 @@ public class DepositWalletHandler implements WalletHandler {
     }
 
     @Override
-    public void handle(TransactionRequest request, Long userId, Long walletId, Transaction transaction) throws UserNotFoundException, AccessDeniedException {
+    public TransactionRecipient handle(TransactionRequest request, Long userId, Long walletId, Transaction transaction) throws UserNotFoundException, AccessDeniedException {
         walletService.depositMoney(request, userId, walletId);
+        return null;
     }
 
     @Override

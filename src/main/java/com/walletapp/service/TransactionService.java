@@ -9,6 +9,7 @@ import com.walletapp.model.wallet.Wallet;
 import com.walletapp.handler.WalletHandlerRegistry;
 import com.walletapp.repository.*;
 
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -43,6 +44,7 @@ public class TransactionService {
     private WalletHandlerRegistry walletHandlerRegistry;
 
 
+    @Transactional
     public TransactionResponse createTransaction(TransactionRequest request, Long userId, Long walletId)
             throws UserNotFoundException, WalletNotFoundException, AccessDeniedException {
 
@@ -53,24 +55,18 @@ public class TransactionService {
                 walletService.verifyUserWallet(userId, walletId)
         );
 
-        walletHandlerRegistry
+        transactionRepository.save(transaction);
+
+        TransactionRecipient recipient = walletHandlerRegistry
                 .getHandler(request.getType())
                 .handle(request, userId, walletId, transaction);
 
-        transactionRepository.save(transaction);
-
-        TransactionRecipient recipient = null;
-
-        if(request.getTransactionType() == TransactionType.TRANSFER){
-            Wallet recipientWallet = walletService.findWalletById(request.getReceiverWalletId());
-            recipient = new TransactionRecipient(transaction, recipientWallet);
-            transactionRecipientRepository.save(recipient);
-        }
+        System.out.println("YE HAI RECI "+recipient);
 
         return new TransactionResponse(transaction, recipient);
     }
 
-    public List<TransactionResponse> getTransactions(Long userId, Long walletId) throws UserNotFoundException {
+    public List<TransactionResponse> getTransactions(Long userId, Long walletId) {
         List<Transaction> transactions = transactionRepository.findByWalletId(walletId);
 
         return transactions.stream()
