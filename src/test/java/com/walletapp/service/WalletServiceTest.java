@@ -1,18 +1,14 @@
-package service;
+package com.walletapp.service;
 
 import com.walletapp.dto.transaction.TransactionRequest;
 import com.walletapp.exceptions.users.UserNotFoundException;
 import com.walletapp.exceptions.wallets.WalletNotFoundException;
-import com.walletapp.model.money.Currency;
-import com.walletapp.model.money.CurrencyType;
 import com.walletapp.model.money.Money;
 import com.walletapp.model.transaction.TransactionType;
 import com.walletapp.model.user.User;
 import com.walletapp.model.wallet.Wallet;
-import com.walletapp.repository.CurrencyRepository;
 import com.walletapp.repository.UserRepository;
 import com.walletapp.repository.WalletRepository;
-import com.walletapp.service.CurrencyService;
 import com.walletapp.service.JWTService;
 import com.walletapp.service.UserService;
 import com.walletapp.service.WalletService;
@@ -38,8 +34,6 @@ class WalletServiceTest {
     @Mock
     private UserRepository userRepository;
     @Mock
-    private CurrencyRepository currencyRepository;
-    @Mock
     private WalletRepository walletRepository;
     @Mock
     private AuthenticationManager authManager;
@@ -48,8 +42,6 @@ class WalletServiceTest {
     @Mock
     private JWTService jwtService;
     @Mock
-    private CurrencyService currencyService;
-    @Mock
     private UserService userService;
 
     @InjectMocks
@@ -57,12 +49,11 @@ class WalletServiceTest {
 
     private User user;
     private Wallet wallet;
-    private Currency currency;
+    private String currency = "INR";
 
     @BeforeEach
     void setUp() {
         user = new User(1L,"testUser","password123");
-        currency = new Currency(CurrencyType.INR, 1.0);
         wallet = new Wallet(1L, currency, user);
     }
 
@@ -101,7 +92,6 @@ class WalletServiceTest {
         TransactionRequest request = new TransactionRequest(100.0, "INR", TransactionType.DEPOSIT);
 
         when(walletRepository.findByIdAndUserId(1L, 1L)).thenReturn(Optional.of(wallet));
-        when(currencyService.getCurrency("INR")).thenReturn(currency);
         when(walletRepository.save(wallet)).thenReturn(wallet);
 
         Wallet updatedWallet = walletService.depositMoney(request, 1L, 1L);
@@ -131,7 +121,6 @@ class WalletServiceTest {
         wallet.setMoney(new Money(1000, currency));
         TransactionRequest request = new TransactionRequest(100.0, "INR", TransactionType.WITHDRAW);
         when(walletRepository.findByIdAndUserId(1L, 1L)).thenReturn(Optional.of(wallet));
-        when(currencyService.getCurrency("INR")).thenReturn(currency);
         when(walletRepository.save(wallet)).thenReturn(wallet);
 
         Wallet updatedWallet = walletService.withdrawMoney(request, 1L, 1L);

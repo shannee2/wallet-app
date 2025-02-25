@@ -3,8 +3,6 @@ package com.walletapp.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.walletapp.dto.transaction.TransactionRequest;
 import com.walletapp.dto.transaction.TransactionResponse;
-import com.walletapp.model.money.Currency;
-import com.walletapp.model.money.CurrencyType;
 import com.walletapp.model.transaction.Transaction;
 import com.walletapp.model.transaction.TransactionRecipient;
 import com.walletapp.model.transaction.TransactionType;
@@ -54,7 +52,7 @@ class TransactionControllerTest {
 
     @BeforeEach
     void setUp() {
-        Currency currency = new Currency( CurrencyType.USD, 1L);
+        String currency = "INR";
         Wallet senderWallet = new Wallet(1L);
         Wallet receiverWallet = new Wallet(2L);
 

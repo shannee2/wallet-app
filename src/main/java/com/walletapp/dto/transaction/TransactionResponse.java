@@ -1,7 +1,6 @@
 package com.walletapp.dto.transaction;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.walletapp.model.money.CurrencyType;
 import com.walletapp.model.transaction.Transaction;
 import com.walletapp.model.transaction.TransactionType;
 import com.walletapp.model.transaction.TransactionRecipient;
@@ -11,7 +10,7 @@ import java.util.Date;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class TransactionResponse {
     private final Long transactionId;
-    private final CurrencyType currencyType;
+    private final String currencyType;
     private final double amount;
     private final Date date;
     private final TransactionType transactionType;
@@ -21,7 +20,7 @@ public class TransactionResponse {
 
     public TransactionResponse(Transaction transaction, TransactionRecipient recipient) {
         this.transactionId = transaction.getId();
-        this.currencyType = transaction.getCurrency() != null ? transaction.getCurrency().getType() : null;
+        this.currencyType = transaction.getCurrency() != null ? String.valueOf(transaction.getCurrency()) : null;
         this.amount = transaction.getAmount();
         this.date = transaction.getDate();
         this.transactionType = transaction.getType();
@@ -41,7 +40,7 @@ public class TransactionResponse {
 
     // Getters
     public Long getTransactionId() { return transactionId; }
-    public CurrencyType getCurrencyType() { return currencyType; }
+    public String getCurrencyType() { return currencyType; }
     public double getAmount() { return amount; }
     public Date getDate() { return date; }
     public TransactionType getTransactionType() { return transactionType; }

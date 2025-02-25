@@ -31,14 +31,10 @@ public class TransactionService {
     @Autowired
     private WalletService walletService;
 
-    @Autowired
-    private CurrencyRepository currencyRepository;
 
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
-    private CurrencyService currencyService;
 
     @Autowired
     private WalletHandlerRegistry walletHandlerRegistry;
@@ -51,7 +47,7 @@ public class TransactionService {
         Transaction transaction = new Transaction(
                 request.getType(),
                 request.getAmount(),
-                currencyService.getCurrency(request.getCurrency()),
+                request.getCurrency(),
                 walletService.verifyUserWallet(userId, walletId)
         );
 
@@ -60,8 +56,6 @@ public class TransactionService {
         TransactionRecipient recipient = walletHandlerRegistry
                 .getHandler(request.getType())
                 .handle(request, userId, walletId, transaction);
-
-        System.out.println("YE HAI RECI "+recipient);
 
         return new TransactionResponse(transaction, recipient);
     }

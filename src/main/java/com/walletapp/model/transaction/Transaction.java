@@ -2,7 +2,6 @@ package com.walletapp.model.transaction;
 
 import java.util.Date;
 
-import com.walletapp.model.money.Currency;
 import com.walletapp.model.wallet.Wallet;
 import jakarta.persistence.*;
 
@@ -24,9 +23,7 @@ public class Transaction {
     @Column(nullable = false)
     private double amount;
 
-    @ManyToOne
-    @JoinColumn(name = "currency_id", nullable = false)
-    private Currency currency;
+    private String currency;
 
     @ManyToOne
     @JoinColumn(name = "wallet_id", nullable = false)
@@ -39,14 +36,14 @@ public class Transaction {
         this.date = new Date();
     }
 
-    public Transaction(TransactionType type, double amount, Currency currency, Wallet wallet) {
+    public Transaction(TransactionType type, double amount, String currency, Wallet wallet) {
         this.type = type;
         this.amount = amount;
         this.currency = currency;
         this.date = new Date();
         this.wallet = wallet;
     }
-    public Transaction(Long id, TransactionType type, double amount, Currency currency, Wallet wallet) {
+    public Transaction(Long id, TransactionType type, double amount, String currency, Wallet wallet) {
         this.type = type;
         this.amount = amount;
         this.currency = currency;
@@ -71,7 +68,7 @@ public class Transaction {
         return amount;
     }
 
-    public Currency getCurrency() {
+    public String getCurrency() {
         return currency;
     }
 

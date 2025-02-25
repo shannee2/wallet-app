@@ -1,18 +1,12 @@
-package service;
+package com.walletapp.service;
 
 import com.walletapp.dto.user.UserRequest;
 import com.walletapp.dto.user.UserResponse;
 import com.walletapp.exceptions.users.UserNotFoundException;
-import com.walletapp.model.money.Currency;
-import com.walletapp.model.money.CurrencyType;
 import com.walletapp.model.user.User;
 import com.walletapp.model.wallet.Wallet;
 import com.walletapp.repository.UserRepository;
 import com.walletapp.repository.WalletRepository;
-import com.walletapp.service.CurrencyService;
-import com.walletapp.service.JWTService;
-import com.walletapp.service.UserService;
-import com.walletapp.service.WalletService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,8 +32,6 @@ class UserServiceTest {
     @Mock
     private UserRepository userRepository;
     @Mock
-    private CurrencyService currencyService;
-    @Mock
     private WalletRepository walletRepository;
     @Mock
     private AuthenticationManager authManager;
@@ -53,41 +45,34 @@ class UserServiceTest {
     private UserService userService;
 
     private User user;
-    private Currency currency;
+    private String currency = "INR";
     private Wallet wallet;
 
     @BeforeEach
     void setUp() {
         user = new User(1L, "testUser","password123");
-        currency = new Currency(CurrencyType.INR, 1.0);
         wallet = new Wallet(currency, user);
     }
 
 
 
-//    @Test
-//    void testRegisterUser_Success() {
-//        when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.empty());
-//        when(passwordEncoder.encode(user.getPassword())).thenReturn("encodedPassword");
-//        when(jwtService.generateToken(anyLong())).thenReturn("jwtToken");
-//        when(walletService.createWallet(any(User.class), any(Currency.class)))
-//                .thenReturn(wallet);
-//
-//        when(currencyService.getCurrency(CurrencyType.INR)).thenReturn(currency);
-//
-//        when(walletService.createWallet(any(User.class), any(Currency.class)))
-//                .thenReturn(wallet);
-//
-//        UserRequest request = new UserRequest(user.getUsername(), user.getPassword(), null);
-//        UserResponse response = userService.registerUser(request);
-//
-//        assertThat(response).isNotNull();
-//        assertThat(response.getMessage()).isEqualTo("User Registered Successfully");
-//        assertThat(response.getToken()).isEqualTo("jwtToken");
-//
-//        verify(userRepository).save(any(User.class));
-//        verify(walletService).createWallet(any(User.class), any(Currency.class));
-//    }
+    @Test
+    void testRegisterUser_Success() {
+        when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.empty());
+        when(passwordEncoder.encode(user.getPassword())).thenReturn("encodedPassword");
+
+        when(walletService.createWallet(any(User.class), any()))
+                .thenReturn(wallet);
+
+        UserRequest request = new UserRequest(user.getUsername(), user.getPassword(), "INR");
+        UserResponse response = userService.registerUser(request);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getMessage()).isEqualTo("User Registered Successfully");
+
+        verify(userRepository).save(any(User.class));
+        verify(walletService).createWallet(any(User.class), any());
+    }
 
     @Test
     void testGetUserByUsername_Success() throws UserNotFoundException {

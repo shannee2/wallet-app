@@ -4,11 +4,9 @@ import com.walletapp.dto.user.UserRequest;
 import com.walletapp.dto.user.UserResponse;
 import com.walletapp.exceptions.users.UserNotFoundException;
 import com.walletapp.exceptions.wallets.WalletNotFoundException;
-import com.walletapp.model.money.CurrencyType;
 import com.walletapp.model.user.User;
 import com.walletapp.model.user.UserPrincipal;
 import com.walletapp.model.wallet.Wallet;
-import com.walletapp.model.money.Currency;
 import com.walletapp.repository.UserRepository;
 import com.walletapp.repository.WalletRepository;
 import jakarta.transaction.Transactional;
@@ -35,7 +33,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
-    private final CurrencyService currencyService;
     private final WalletRepository walletRepository;
     private final AuthenticationManager authManager;
     private final PasswordEncoder passwordEncoder;
@@ -46,14 +43,12 @@ public class UserService implements UserDetailsService {
     @Autowired
     public UserService(
             UserRepository userRepository,
-            CurrencyService currencyService,
             WalletRepository walletRepository,
             @Lazy AuthenticationManager authManager,
             PasswordEncoder encoder,
             JWTService jwtService,
             WalletService walletService) {
         this.userRepository = userRepository;
-        this.currencyService = currencyService;
         this.walletRepository = walletRepository;
         this.authManager = authManager;
         this.passwordEncoder = encoder;

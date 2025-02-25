@@ -1,4 +1,4 @@
-package service;
+package com.walletapp.service;
 
 import com.walletapp.dto.transaction.TransactionRequest;
 import com.walletapp.dto.transaction.TransactionResponse;
@@ -46,9 +46,6 @@ class TransactionServiceTest {
     private WalletService walletService;
 
     @Mock
-    private CurrencyService currencyService;
-
-    @Mock
     private WalletHandlerRegistry walletHandlerRegistry;
 
     @Mock
@@ -77,7 +74,6 @@ class TransactionServiceTest {
         TransactionRequest request = new TransactionRequest(200.0, "USD", TransactionType.DEPOSIT);
         Transaction transaction = new Transaction(TransactionType.DEPOSIT, 200.0, null, wallet);
 
-        when(currencyService.getCurrency("USD")).thenReturn(null);
         when(transactionRepository.save(any(Transaction.class))).thenReturn(transaction);
 
         TransactionResponse response = transactionService.createTransaction(request, USER_ID, WALLET_ID);
@@ -95,7 +91,6 @@ class TransactionServiceTest {
         TransactionRequest request = new TransactionRequest(100.0, "USD", TransactionType.WITHDRAW);
         Transaction transaction = new Transaction(TransactionType.WITHDRAW, 100.0, null, wallet);
 
-        when(currencyService.getCurrency("USD")).thenReturn(null);
         when(transactionRepository.save(any(Transaction.class))).thenReturn(transaction);
 
         TransactionResponse response = transactionService.createTransaction(request, USER_ID, WALLET_ID);
@@ -115,7 +110,6 @@ class TransactionServiceTest {
         Wallet recipientWallet = mock(Wallet.class);
         TransactionRecipient recipient = new TransactionRecipient(transaction, recipientWallet);
 
-        when(currencyService.getCurrency("USD")).thenReturn(null);
         when(transactionRepository.save(any(Transaction.class))).thenReturn(transaction);
         when(walletHandler.handle(any(), any(), any(), any())).thenReturn(recipient);
 
