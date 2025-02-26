@@ -1,6 +1,8 @@
 package com.walletapp.service;
 
 import com.walletapp.dto.transaction.TransactionRequest;
+import com.walletapp.dto.wallet.WalletRequest;
+import com.walletapp.dto.wallet.WalletResponse;
 import com.walletapp.exceptions.users.UserNotFoundException;
 import com.walletapp.exceptions.wallets.WalletNotFoundException;
 import com.walletapp.grpc.GrpcClientService;
@@ -69,6 +71,12 @@ public class WalletService implements UserDetailsService {
         }
         Wallet wallet = new Wallet(currency, user);
         return walletRepository.save(wallet);
+    }
+
+    public WalletResponse createWallet(WalletRequest request, Long userId) {
+        User user = userRepository.findById(userId).get();
+        Wallet wallet = createWallet(user, request.getCurrency());
+        return new WalletResponse(wallet.getId());
     }
 
     public Wallet depositMoney(TransactionRequest transactionRequest, Long walletId) throws UserNotFoundException, AccessDeniedException {

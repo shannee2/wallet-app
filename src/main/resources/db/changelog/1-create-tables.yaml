@@ -42,7 +42,6 @@ databaseChangeLog:
                     nullable: false
                     foreignKeyName: fk_wallet_user
                     references: users(id)
-                    unique: true
               - column:
                   name: amount
                   type: DECIMAL(19,2)
