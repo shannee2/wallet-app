@@ -33,7 +33,7 @@ public class WalletService implements UserDetailsService {
     private final PasswordEncoder passwordEncoder;
     private final JWTService jwtService;
     private final GrpcClientService grpcClientService;
-
+    private final CurrencyService currencyService;
 
     @Autowired
     public WalletService(
@@ -41,15 +41,15 @@ public class WalletService implements UserDetailsService {
             WalletRepository walletRepository,
             @Lazy AuthenticationManager authManager,
             PasswordEncoder encoder,
-            JWTService jwtService, GrpcClientService grpcClientService) {
+            JWTService jwtService, GrpcClientService grpcClientService, CurrencyService currencyService) {
         this.userRepository = userRepository;
         this.walletRepository = walletRepository;
         this.authManager = authManager;
         this.passwordEncoder = encoder;
         this.jwtService = jwtService;
         this.grpcClientService = grpcClientService;
+        this.currencyService = currencyService;
     }
-
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -71,9 +71,6 @@ public class WalletService implements UserDetailsService {
         return walletRepository.save(wallet);
     }
 
-//    public Wallet createWallet(User user, String currency){
-//    }
-
     public Wallet depositMoney(TransactionRequest transactionRequest, Long walletId) throws UserNotFoundException, AccessDeniedException {
         Wallet wallet = findWalletById(walletId);
         return depositMoney(transactionRequest, wallet.getUser().getId(), walletId);
@@ -83,8 +80,9 @@ public class WalletService implements UserDetailsService {
         Wallet wallet = verifyUserWallet(userId, walletId);
 
         Money money = new Money(transactionRequest.getAmount(), transactionRequest.getCurrency());
-        Money moneyToDeposit = convertCurrency(money, wallet.getMoney().getCurrency());
+        Money moneyToDeposit = currencyService.convertCurrency(money, wallet.getMoney().getCurrency());
         wallet.deposit(moneyToDeposit);
+
         return walletRepository.save(wallet);
     }
 
@@ -92,21 +90,14 @@ public class WalletService implements UserDetailsService {
         Wallet wallet = verifyUserWallet(userId, walletId);
 
         Money money = new Money(transactionRequest.getAmount(), transactionRequest.getCurrency());
-        Money moneyToWithdraw = convertCurrency(money, wallet.getMoney().getCurrency());
+        Money moneyToWithdraw = currencyService.convertCurrency(money, wallet.getMoney().getCurrency());
         wallet.withdraw(moneyToWithdraw);
+
         return walletRepository.save(wallet);
     }
 
     public Wallet verifyUserWallet(Long userId, Long walletId) throws AccessDeniedException {
         return walletRepository.findByIdAndUserId(walletId, userId)
                 .orElseThrow(() -> new AccessDeniedException("Wallet does not belong to the user"));
-    }
-
-    private Money convertCurrency(Money money, String toCurrency){
-        if(money.getCurrency().equals(toCurrency)){
-            return money;
-        }
-        double convertedAmount = grpcClientService.convertCurrency(money.getAmount(), money.getCurrency(), toCurrency);
-        return new Money(convertedAmount, toCurrency);
     }
 }

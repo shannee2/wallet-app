@@ -1,32 +1,33 @@
 package com.walletapp.grpc;
 
-import com.example.currency.proto.CurrencyConverterGrpc;
-import com.example.currency.proto.ConvertRequest;
-import com.example.currency.proto.ConvertResponse;
-
+import com.currency.proto.*;
 import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class GrpcClientService {
-    private final CurrencyConverterGrpc.CurrencyConverterBlockingStub currencyStub;
 
-    public GrpcClientService() {
-        ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 50051)
-                .usePlaintext()
-                .build();
-        currencyStub = CurrencyConverterGrpc.newBlockingStub(channel);
+    private final CurrencyConverterGrpc.CurrencyConverterBlockingStub grpcStub;
+
+    @Autowired
+    public GrpcClientService(ManagedChannel managedChannel) {
+        this.grpcStub = CurrencyConverterGrpc.newBlockingStub(managedChannel);
     }
 
-    public double convertCurrency(double amount, String from, String to) {
-        ConvertRequest request = ConvertRequest.newBuilder()
+    public Money convertCurrency(double amount, String fromCurrency, String toCurrency) {
+        Money money = Money.newBuilder()
                 .setAmount(amount)
-                .setFromCurrency(from)
-                .setToCurrency(to)
+                .setCurrency(fromCurrency)
                 .build();
 
-        ConvertResponse response = currencyStub.convertCurrency(request);
-        return response.getConvertedAmount();
+        ConvertRequest request = ConvertRequest.newBuilder()
+                .setMoney(money)
+                .setToCurrency(toCurrency)
+                .build();
+
+        ConvertResponse response = grpcStub.convertCurrency(request);
+
+        return response.getConvertedMoney();
     }
 }

@@ -11,7 +11,7 @@ public class GrpcClientConfig {
     @Bean
     public ManagedChannel grpcChannel() {
         return ManagedChannelBuilder.forAddress("localhost", 50051)
-                .usePlaintext()  // Disable TLS for local testing
+                .usePlaintext()
                 .build();
     }
 }

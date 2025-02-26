@@ -3,19 +3,23 @@ syntax = "proto3";
 package currency;
 
 option java_multiple_files = true;
-option java_package = "com.example.currency.proto";
+option java_package = "com.currency.proto";
 option java_outer_classname = "CurrencyConverterProto";
 
 service CurrencyConverter {
-  rpc ConvertCurrency(ConvertRequest) returns (ConvertResponse);
+  rpc ConvertCurrency (ConvertRequest) returns (ConvertResponse);
+}
+
+message Money {
+  double amount = 1;
+  string currency = 2;
 }
 
 message ConvertRequest {
-  double amount = 1;
-  string from_currency = 2;
-  string to_currency = 3;
+  Money money = 1;
+  string to_currency = 2;
 }
 
 message ConvertResponse {
-  double converted_amount = 1;
+  Money converted_money = 1;
 }
