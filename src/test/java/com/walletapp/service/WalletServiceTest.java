@@ -153,4 +153,23 @@ class WalletServiceTest {
 
         assertThrows(AccessDeniedException.class, () -> walletService.verifyUserWallet(1L, 1L));
     }
+
+    @Test
+    void testDepositMoney_WalletDoesNotBelongToUser() {
+        TransactionRequest request = new TransactionRequest(100.0, "INR", TransactionType.DEPOSIT);
+
+        when(walletRepository.findByIdAndUserId(1L, 2L)).thenReturn(Optional.empty());
+
+        assertThrows(AccessDeniedException.class, () -> walletService.depositMoney(request, 2L, 1L));
+    }
+
+    @Test
+    void testWithdrawMoney_WalletDoesNotBelongToUser() {
+        TransactionRequest request = new TransactionRequest(100.0, "INR", TransactionType.WITHDRAW);
+
+        when(walletRepository.findByIdAndUserId(1L, 2L)).thenReturn(Optional.empty());
+
+        assertThrows(AccessDeniedException.class, () -> walletService.withdrawMoney(request, 2L, 1L));
+    }
+
 }

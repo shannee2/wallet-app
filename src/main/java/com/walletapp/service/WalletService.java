@@ -5,7 +5,6 @@ import com.walletapp.dto.wallet.WalletRequest;
 import com.walletapp.dto.wallet.WalletResponse;
 import com.walletapp.exceptions.users.UserNotFoundException;
 import com.walletapp.exceptions.wallets.WalletNotFoundException;
-import com.walletapp.grpc.GrpcClientService;
 import com.walletapp.model.user.User;
 import com.walletapp.model.user.UserPrincipal;
 import com.walletapp.model.wallet.Wallet;
@@ -34,7 +33,6 @@ public class WalletService implements UserDetailsService {
     private final AuthenticationManager authManager;
     private final PasswordEncoder passwordEncoder;
     private final JWTService jwtService;
-    private final GrpcClientService grpcClientService;
     private final CurrencyService currencyService;
 
     @Autowired
@@ -43,13 +41,12 @@ public class WalletService implements UserDetailsService {
             WalletRepository walletRepository,
             @Lazy AuthenticationManager authManager,
             PasswordEncoder encoder,
-            JWTService jwtService, GrpcClientService grpcClientService, CurrencyService currencyService) {
+            JWTService jwtService, CurrencyService currencyService) {
         this.userRepository = userRepository;
         this.walletRepository = walletRepository;
         this.authManager = authManager;
         this.passwordEncoder = encoder;
         this.jwtService = jwtService;
-        this.grpcClientService = grpcClientService;
         this.currencyService = currencyService;
     }
 
@@ -108,4 +105,5 @@ public class WalletService implements UserDetailsService {
         return walletRepository.findByIdAndUserId(walletId, userId)
                 .orElseThrow(() -> new AccessDeniedException("Wallet does not belong to the user"));
     }
+
 }
